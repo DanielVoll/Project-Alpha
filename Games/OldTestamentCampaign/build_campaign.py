@@ -25,6 +25,11 @@ from common import *
 def new_scenario(map_size=MAP_MEDIUM):
     s = AoE2DEScenario.from_default()
     s.variant = ScenarioVariant.ROR
+    # The ROR variant flag sets DLC ID 11 (Three Kingdoms/Chronicles) as required,
+    # but we only need the variant value (unknown_value_2=2) to get the Pompeii civ
+    # set — not the DLC ownership check. Clear it so any player can open the scenario.
+    s.sections["FileHeader"].unknown_numbers = []
+    s.sections["FileHeader"].amount_of_unknown_numbers = 0
     s.map_manager.map_size = map_size
     return s
 
