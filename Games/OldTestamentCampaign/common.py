@@ -8,7 +8,7 @@ import random
 # ── Output directory ────────────────────────────────────────────────────────
 MOD_ROOT = (
     r"C:\Users\Leseh\Games\Age of Empires 2 DE"
-    r"\76561198062540201\mods\local\chronicles-of-israel"
+    r"\76561198062540201\modes\Pompeii"
 )
 SCENARIO_OUT = os.path.join(MOD_ROOT, "resources", "_common", "scenario")
 
