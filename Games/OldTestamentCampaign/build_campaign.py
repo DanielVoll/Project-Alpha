@@ -25,14 +25,10 @@ from common import *
 def new_scenario(map_size=MAP_MEDIUM):
     s = AoE2DEScenario.from_default()
     s.variant = ScenarioVariant.ROR
-    # Setting ScenarioVariant.ROR writes two DLC gates:
-    #   unknown_value_2 = 2  →  implicit "requires RoR mode" check
-    #   unknown_numbers = [11] →  explicit DLC-11 ownership check
-    # We need neither: civ IDs are resolved by whichever dat is active at load time
-    # (Pompeii dat in RoR mode), so the variant flag adds no gameplay value once
-    # the gate fields are cleared. Reset both to the AOE2-variant defaults so any
-    # player can open the scenario without owning Return of Rome.
-    s.sections["FileHeader"].unknown_value_2 = 1
+    # Setting ScenarioVariant.ROR writes unknown_numbers = [11], which is the
+    # explicit DLC-11 ownership gate. Clear it so any player can open the scenario.
+    # unknown_value_2 = 2 (RoR variant) is kept: it tells the game to show these
+    # scenarios in the Return of Rome scenario browser (filtered by variant).
     s.sections["FileHeader"].unknown_numbers = []
     s.sections["FileHeader"].amount_of_unknown_numbers = 0
     s.map_manager.map_size = map_size
