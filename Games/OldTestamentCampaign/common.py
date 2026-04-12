@@ -12,23 +12,28 @@ MOD_ROOT = (
 )
 SCENARIO_OUT = os.path.join(MOD_ROOT, "resources", "_common", "scenario")
 
-# ── Return of Rome (Pompeii) civilization IDs ────────────────────────────────
-# These IDs come from modes/Pompeii/resources/_common/dat/civilizations.json
-# They are interpreted correctly when the scenario variant is set to ROR.
-CIV_GAIA      = 0
-CIV_EGYPT     = 1   # Egyptian
-CIV_GREEK     = 2   # Greek
-CIV_BABYLON   = 3   # Babylonian
-CIV_ASSYRIA   = 4   # Assyrian
-CIV_MINOAN    = 5   # Minoan
-CIV_CANAAN    = 6   # Hittite  — Canaanite city-states
-CIV_ISRAEL    = 7   # Phoenician — Semitic Levantine, closest to ancient Israel
-CIV_MIDIAN    = 8   # Sumerian  — Mesopotamian/desert raiders (Midian, Amalek)
-CIV_PERSIA    = 9   # Persian
-CIV_ROMAN     = 13  # Roman
-CIV_PALMYRAN  = 15  # Palmyran  — Levantine desert people
-CIV_SELEUCID  = 16  # Macedonian — Philistines / Seleucid Empire
-CIV_TYRE      = 7   # Phoenician (Solomon's trading partner)
+# ── Return of Rome (Pompeii) civilization strings ────────────────────────────
+# These are the data_name strings from:
+#   modes/Pompeii/resources/_common/dat/civilizations.json
+# AoE2ScenarioParser accepts unknown strings as-is (try/except fallback in
+# _to_civilization_dataset), so passing these strings to player.civilization
+# writes them verbatim to the binary — exactly what the Pompeii dat expects.
+# Integer IDs must NOT be used: the parser would convert them to DE civ strings
+# (e.g. 7 → "BYZANTINE-CIV") which the Pompeii dat cannot resolve → GAIA.
+CIV_GAIA      = "GAIA"
+CIV_EGYPT     = "EGYPTIAN-CIV"    # Egyptian
+CIV_GREEK     = "GREEK-CIV"       # Greek
+CIV_BABYLON   = "BABYLONIAN-CIV"  # Babylonian
+CIV_ASSYRIA   = "ASSYRIAN-CIV"    # Assyrian
+CIV_MINOAN    = "MINOAN-CIV"      # Minoan
+CIV_CANAAN    = "HITTITE-CIV"     # Hittite  — Canaanite city-states
+CIV_ISRAEL    = "PHOENICIAN-CIV"  # Phoenician — closest to ancient Israel
+CIV_MIDIAN    = "SUMERIAN-CIV"    # Sumerian  — Mesopotamian/desert raiders
+CIV_PERSIA    = "PERSIAN-CIV"     # Persian
+CIV_ROMAN     = "ROMAN-CIV"       # Roman
+CIV_PALMYRAN  = "PALMYRAN-CIV"    # Palmyran  — Levantine desert people
+CIV_SELEUCID  = "MACEDONIAN-CIV"  # Macedonian — Philistines / Seleucid Empire
+CIV_TYRE      = "PHOENICIAN-CIV"  # Phoenician (Solomon's trading partner)
 
 # ── Standard unit IDs ────────────────────────────────────────────────────────
 U_MILITIA           = 74
