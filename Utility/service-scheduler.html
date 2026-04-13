@@ -412,17 +412,19 @@
     headers: [],
     rawRows: [],
     sheetName: '',
-    mapping: { name: null, contact: null, address: null, lastService: null },
+    mapping: { name: null, contact: null, address: null, lastService: null, postalCode: null, deviceType: null },
     config: { startDate: null, workingDays: [1,2,3,4,5], maxPerDay: 0 },
     customers: [],
     schedule: [],
   };
 
   const MAPPING_FIELDS = [
-    { key: 'name',        label: 'Customer Name',     hint: 'Full name or company' },
-    { key: 'contact',     label: 'Contact Info',      hint: 'Phone, email, or both' },
-    { key: 'address',     label: 'Address',           hint: 'Must contain the postal code' },
-    { key: 'lastService', label: 'Last Service Date', hint: 'Next due date = this + 1 year' },
+    { key: 'name',        label: 'Customer Name',     hint: 'Full name or company',             required: true  },
+    { key: 'lastService', label: 'Last Service Date', hint: 'Next due date = this + 1 year',    required: true  },
+    { key: 'postalCode',  label: 'Postal Code',       hint: 'Separate postcode column (preferred)', required: false },
+    { key: 'address',     label: 'Address',           hint: 'Street + number (postcode optional)', required: false },
+    { key: 'contact',     label: 'Phone / Contact',   hint: 'Phone number or email',            required: false },
+    { key: 'deviceType',  label: 'Device Type',       hint: 'Type of equipment (optional)',     required: false },
   ];
 
   // ════════════════════════════════════════════════
@@ -531,9 +533,13 @@
 
     container.innerHTML = MAPPING_FIELDS.map(f => `
       <div class="mapping-row">
-        <div class="mapping-label">${f.label}<span>${f.hint}</span></div>
+        <div class="mapping-label">
+          ${f.label}
+          ${f.required ? '' : '<span class="badge badge-unknown" style="font-size:0.65rem;padding:0.1rem 0.45rem;vertical-align:middle;">optional</span>'}
+          <span>${f.hint}</span>
+        </div>
         <select id="map-${f.key}">
-          <option value="">-- select column --</option>
+          <option value="">${f.required ? '-- select column --' : '-- not mapped --'}</option>
           ${options}
         </select>
       </div>
@@ -545,10 +551,12 @@
 
   function autoDetectMappings() {
     const patterns = {
-      name:        [/naam|name|klant|customer|bedrijf|company/i],
-      contact:     [/telefoon|phone|tel|mobiel|mobile|email|contact/i],
-      address:     [/adres|address|straat|street|locatie|location/i],
-      lastService: [/laatste|last.?service|vorige|prev/i],
+      name:        [/^naam$|naam|name|klant|customer|bedrijf|company/i],
+      lastService: [/gekeurd|keuring|last.?service|laatste|vorige|prev/i],
+      postalCode:  [/^postcode$|postcode|postal|zipcode|zip/i],
+      address:     [/^adres$|adres|address|straat|street|locatie|location/i],
+      contact:     [/telefoonnummer|telefoon|phone|tel|mobiel|mobile|contact/i],
+      deviceType:  [/hulpmiddel|device|apparaat|type|equipment/i],
     };
     const headers = AppState.headerIndices;
     Object.entries(patterns).forEach(([key, pats]) => {
@@ -570,7 +578,8 @@
     MAPPING_FIELDS.forEach(f => {
       const val = document.getElementById(`map-${f.key}`).value;
       if (val === '') {
-        errors.push(`"${f.label}" is not mapped.`);
+        if (f.required) errors.push(`"${f.label}" is required.`);
+        mapping[f.key] = null;
       } else {
         mapping[f.key] = parseInt(val, 10);
       }
@@ -582,11 +591,18 @@
       return;
     }
 
-    // Check for duplicates
-    const indices = Object.values(mapping);
+    // Check for duplicates among mapped (non-null) fields
+    const indices = Object.values(mapping).filter(v => v !== null);
     const unique = new Set(indices);
     if (unique.size !== indices.length) {
       errEl.textContent = 'Two fields cannot be mapped to the same column.';
+      errEl.classList.add('visible');
+      return;
+    }
+
+    // Warn if neither postal code nor address is mapped
+    if (mapping.postalCode === null && mapping.address === null) {
+      errEl.textContent = 'Please map at least one of "Postal Code" or "Address" so customers can be grouped by area.';
       errEl.classList.add('visible');
       return;
     }
@@ -601,7 +617,7 @@
   //  DATA NORMALISATION
   // ════════════════════════════════════════════════
   function normalizeCustomers() {
-    const { name, contact, address, lastService } = AppState.mapping;
+    const { name, contact, address, lastService, postalCode: pcCol, deviceType } = AppState.mapping;
 
     AppState.customers = AppState.rawRows
       .map((row, rowIdx) => {
@@ -609,16 +625,24 @@
         const customerName = String(row[name] ?? '').trim();
         if (!customerName) return null;
 
-        const addressStr = String(row[address] ?? '').trim();
+        const addressStr = address !== null ? String(row[address] ?? '').trim() : '';
         const lastServiceDate = parseDate(datesRow[lastService] ?? row[lastService]);
         const nextDueDate = lastServiceDate ? addOneYear(lastServiceDate) : null;
+
+        // Use dedicated postal code column if mapped; otherwise extract from address
+        const rawPostal = pcCol !== null ? String(row[pcCol] ?? '').trim() : null;
+        const postalCode = rawPostal
+          ? (rawPostal.match(/\d{4}/) ? rawPostal.match(/(\d{4})/)[1] : null)
+          : extractPostalCode(addressStr);
+
         return {
           name: customerName,
-          contact: String(row[contact] ?? '').trim(),
+          contact: contact !== null ? String(row[contact] ?? '').trim() : '',
           address: addressStr,
+          deviceType: deviceType !== null ? String(row[deviceType] ?? '').trim() : '',
           lastServiceDate,
           nextDueDate,
-          postalCode: extractPostalCode(addressStr),
+          postalCode,
         };
       })
       .filter(Boolean);
@@ -876,9 +900,13 @@
                   ? `<a href="tel:${escapeHtml(m.contact.replace(/\s/g,''))}">${escapeHtml(m.contact)}</a>`
                   : escapeHtml(m.contact))
               : '<span style="opacity:0.4;">—</span>';
+            const deviceHtml = m.deviceType
+              ? `<span style="color:var(--text-muted);font-size:0.8rem;flex:1;min-width:120px;">${escapeHtml(m.deviceType)}</span>`
+              : '';
             return `
               <div class="customer-row">
                 <span class="customer-name">${escapeHtml(m.name)}</span>
+                ${deviceHtml}
                 <span class="customer-contact">${contactHtml}</span>
                 <span class="customer-due"><span class="badge ${badgeClass}">${badgeText}</span></span>
               </div>`;
@@ -893,7 +921,7 @@
   //  CSV EXPORT
   // ════════════════════════════════════════════════
   function exportCSV() {
-    const header = ['Trip Date','Postal Area','Customer Name','Contact','Address','Last Service Date','Next Due Date','Status'];
+    const header = ['Trip Date','Postal Area','Customer Name','Device Type','Contact','Address','Last Service Date','Next Due Date','Status'];
     const rows = [];
     AppState.schedule.forEach(trip => {
       trip.members.forEach(m => {
@@ -901,6 +929,7 @@
           trip.date ? trip.date.toISOString().split('T')[0] : '',
           trip.postalCode ?? '',
           m.name,
+          m.deviceType ?? '',
           m.contact,
           m.address,
           m.lastServiceDate ? m.lastServiceDate.toISOString().split('T')[0] : '',
