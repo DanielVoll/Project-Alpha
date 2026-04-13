@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Scheduler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-from: #1a1040;
+      --bg-to: #0d0d1f;
+      --glass-bg: rgba(255,255,255,0.06);
+      --glass-bg-strong: rgba(255,255,255,0.1);
+      --glass-border: rgba(255,255,255,0.12);
+      --blur: 12px;
+      --accent-purple: #7c3aed;
+      --accent-blue: #3b82f6;
+      --accent-gradient: linear-gradient(135deg, #7c3aed, #3b82f6);
+      --overdue-red: #ef4444;
+      --due-soon-orange: #f97316;
+      --ok-green: #22c55e;
+      --unknown-gray: #6b7280;
+      --text-muted: rgba(255,255,255,0.5);
+      --radius: 16px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-from) 0%, #0d0d1f 50%, #0a1628 100%);
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ── Screens ── */
+    .screen { display: none; min-height: 100vh; padding: 2rem 1rem; }
+    .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+    /* ── Common ── */
+    .container { width: 100%; max-width: 680px; }
+    .container-wide { width: 100%; max-width: 1100px; }
+
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      border-radius: var(--radius);
+      padding: 2rem;
+    }
+
+    .gradient-text {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.25rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; }
+
+    p.subtitle { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.65rem 1.4rem; border-radius: 50px; border: none;
+      font-family: inherit; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: var(--accent-gradient); color: #fff;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-ghost {
+      background: var(--glass-bg); border: 1px solid var(--glass-border); color: rgba(255,255,255,0.8);
+    }
+    .btn-ghost:hover { background: var(--glass-bg-strong); }
+    .btn-sm { padding: 0.45rem 1rem; font-size: 0.85rem; }
+
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: none; border: none; color: var(--text-muted);
+      font-family: inherit; font-size: 0.9rem; cursor: pointer;
+      margin-bottom: 1.5rem; padding: 0; transition: color 0.2s;
+    }
+    .back-btn:hover { color: #fff; }
+
+    .error-msg {
+      background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35);
+      border-radius: var(--radius-sm); padding: 0.75rem 1rem;
+      color: #fca5a5; font-size: 0.9rem; margin-top: 1rem; display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    /* ── Screen 1: Upload ── */
+    #screen-upload { justify-content: center; }
+    .upload-header { text-align: center; margin-bottom: 2rem; }
+    .upload-header .icon { font-size: 3rem; margin-bottom: 0.75rem; }
+
+    #drop-zone {
+      border: 2px dashed var(--glass-border);
+      border-radius: var(--radius);
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    #drop-zone:hover, #drop-zone.drag-over {
+      border-color: var(--accent-purple);
+      background: rgba(124,58,237,0.08);
+    }
+    #drop-zone svg { opacity: 0.5; margin-bottom: 1rem; }
+    #drop-zone p { color: var(--text-muted); font-size: 0.95rem; }
+    #drop-zone strong { color: #fff; }
+    #file-input { display: none; }
+
+    /* ── Screen 2: Column Mapping ── */
+    .mapping-preview {
+      overflow-x: auto; margin-bottom: 1.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--glass-border);
+    }
+    .mapping-preview table {
+      border-collapse: collapse; width: 100%; font-size: 0.82rem; min-width: 500px;
+    }
+    .mapping-preview th, .mapping-preview td {
+      padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--glass-border);
+      white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;
+    }
+    .mapping-preview th { background: var(--glass-bg-strong); color: rgba(255,255,255,0.7); font-weight: 500; }
+
+    .mapping-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);
+    }
+    .mapping-row:last-of-type { border-bottom: none; }
+    .mapping-label { font-size: 0.9rem; font-weight: 500; min-width: 160px; }
+    .mapping-label span { display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 400; }
+
+    select {
+      background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
+      color: #fff; font-family: inherit; font-size: 0.9rem;
+      padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);
+      flex: 1; min-width: 0; cursor: pointer;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.5)' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.75rem center;
+      padding-right: 2rem;
+    }
+    select option { background: #1a1040; }
+
+    /* ── Screen 3: Config ── */
+    .config-group { margin-bottom: 1.75rem; }
+    .config-label { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.6rem; display: block; }
+    .config-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    input[type="date"] {
+      background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
+      color: #fff; font-family: inherit; font-size: 0.95rem;
+      padding: 0.6rem 0.85rem; border-radius: var(--radius-sm);
+      width: 100%; max-width: 220px;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.5); }
+
+    .weekday-toggles { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .day-toggle {
+      padding: 0.45rem 0.9rem; border-radius: 50px;
+      border: 1px solid var(--glass-border); background: var(--glass-bg);
+      color: rgba(255,255,255,0.7); font-family: inherit; font-size: 0.85rem;
+      font-weight: 500; cursor: pointer; transition: all 0.2s; user-select: none;
+    }
+    .day-toggle.active {
+      background: var(--accent-gradient); border-color: transparent; color: #fff;
+    }
+
+    /* ── Screen 4: Schedule ── */
+    .schedule-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
+    }
+    .schedule-stats {
+      display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+    }
+    .stat-chip {
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      border-radius: 50px; padding: 0.35rem 0.9rem;
+      font-size: 0.82rem; color: rgba(255,255,255,0.75);
+    }
+    .stat-chip strong { color: #fff; }
+
+    .overdue-banner {
+      background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3);
+      border-radius: var(--radius-sm); padding: 0.85rem 1.1rem;
+      margin-bottom: 1.5rem; font-size: 0.9rem; color: #fca5a5;
+      display: none;
+    }
+    .overdue-banner.visible { display: flex; align-items: flex-start; gap: 0.6rem; }
+    .overdue-banner-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+    #trips-container { display: flex; flex-direction: column; gap: 1rem; }
+
+    .trip-card {
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      border-left: 4px solid var(--ok-green);
+      backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .trip-card.is-overdue { border-left-color: var(--overdue-red); }
+    .trip-card.has-due-soon { border-left-color: var(--due-soon-orange); }
+    .trip-card.no-date { border-left-color: var(--unknown-gray); }
+
+    .trip-header {
+      display: flex; align-items: center; gap: 0.85rem;
+      padding: 1rem 1.25rem; border-bottom: 1px solid var(--glass-border);
+      flex-wrap: wrap;
+    }
+    .trip-date { font-weight: 600; font-size: 1rem; }
+    .trip-area-badge {
+      background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
+      border-radius: 50px; padding: 0.2rem 0.75rem;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.85);
+    }
+    .trip-count { margin-left: auto; color: var(--text-muted); font-size: 0.82rem; }
+
+    .customer-list { padding: 0.5rem 0; }
+    .customer-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.6rem 1.25rem; font-size: 0.88rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      flex-wrap: wrap;
+    }
+    .customer-row:last-child { border-bottom: none; }
+    .customer-name { font-weight: 500; min-width: 140px; flex: 1; }
+    .customer-contact {
+      color: var(--text-muted); font-size: 0.83rem; min-width: 120px; flex: 1;
+    }
+    .customer-contact a { color: #93c5fd; text-decoration: none; }
+    .customer-contact a:hover { text-decoration: underline; }
+    .customer-due { display: flex; align-items: center; gap: 0.4rem; }
+
+    .badge {
+      display: inline-block; padding: 0.15rem 0.6rem; border-radius: 50px;
+      font-size: 0.75rem; font-weight: 600; white-space: nowrap;
+    }
+    .badge-overdue { background: rgba(239,68,68,0.25); color: #fca5a5; }
+    .badge-due-soon { background: rgba(249,115,22,0.25); color: #fdba74; }
+    .badge-ok { background: rgba(34,197,94,0.18); color: #86efac; }
+    .badge-unknown { background: rgba(107,114,128,0.25); color: #9ca3af; }
+    .badge-warning { background: rgba(249,115,22,0.2); color: #fdba74; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      h1 { font-size: 1.5rem; }
+      .glass-card { padding: 1.25rem; }
+      .mapping-row { flex-direction: column; align-items: flex-start; }
+      .mapping-label { min-width: unset; }
+      select { width: 100%; }
+      .customer-row { gap: 0.5rem; }
+      .customer-name, .customer-contact { min-width: unset; flex: 1 1 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN 1: UPLOAD
+  ═══════════════════════════════════════════ -->
+  <div id="screen-upload" class="screen active">
+    <div class="container">
+      <div class="upload-header">
+        <div class="icon">📋</div>
+        <h1><span class="gradient-text">Service Scheduler</span></h1>
+        <p class="subtitle">Upload your customer Excel sheet to generate a smart service trip schedule.</p>
+      </div>
+      <div class="glass-card">
+        <div id="drop-zone">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <p><strong>Drop your .xlsx file here</strong></p>
+          <p style="margin-top:0.4rem; font-size:0.85rem;">or click to browse</p>
+        </div>
+        <input type="file" id="file-input" accept=".xlsx,.xls">
+        <div id="upload-error" class="error-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN 2: COLUMN MAPPING
+  ═══════════════════════════════════════════ -->
+  <div id="screen-mapping" class="screen">
+    <div class="container">
+      <button class="back-btn" onclick="showScreen('screen-upload')">
+        ← Back
+      </button>
+      <h2><span class="gradient-text">Map Your Columns</span></h2>
+      <p class="subtitle">Match your Excel columns to the fields the scheduler needs.</p>
+
+      <div class="glass-card" style="margin-bottom:1rem;">
+        <h3 style="margin-bottom:0.75rem; font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em;">Preview (first 3 rows)</h3>
+        <div class="mapping-preview">
+          <table id="preview-table"></table>
+        </div>
+        <p id="sheet-name-note" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.5rem;"></p>
+      </div>
+
+      <div class="glass-card">
+        <div id="mapping-rows"></div>
+        <div id="mapping-error" class="error-msg"></div>
+        <div style="margin-top:1.5rem; text-align:right;">
+          <button class="btn btn-primary" onclick="applyMapping()">Continue →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN 3: CONFIGURATION
+  ═══════════════════════════════════════════ -->
+  <div id="screen-config" class="screen">
+    <div class="container">
+      <button class="back-btn" onclick="showScreen('screen-mapping')">
+        ← Back
+      </button>
+      <h2><span class="gradient-text">Scheduling Configuration</span></h2>
+      <p class="subtitle">Set your working days and when to start scheduling trips.</p>
+
+      <div class="glass-card">
+        <div class="config-group">
+          <label class="config-label" for="start-date">Start scheduling from</label>
+          <input type="date" id="start-date">
+          <p class="config-sub">Trips will be assigned starting on this date.</p>
+        </div>
+
+        <div class="config-group">
+          <span class="config-label">Working days</span>
+          <div class="weekday-toggles" id="weekday-toggles">
+            <button class="day-toggle active" data-day="1">Mon</button>
+            <button class="day-toggle active" data-day="2">Tue</button>
+            <button class="day-toggle active" data-day="3">Wed</button>
+            <button class="day-toggle active" data-day="4">Thu</button>
+            <button class="day-toggle active" data-day="5">Fri</button>
+            <button class="day-toggle" data-day="6">Sat</button>
+            <button class="day-toggle" data-day="0">Sun</button>
+          </div>
+          <p class="config-sub">Select the days you can do service trips.</p>
+        </div>
+
+        <div id="config-error" class="error-msg"></div>
+        <div style="margin-top:1.5rem; text-align:right;">
+          <button class="btn btn-primary" onclick="generateSchedule()">Generate Schedule →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN 4: SCHEDULE VIEW
+  ═══════════════════════════════════════════ -->
+  <div id="screen-schedule" class="screen">
+    <div class="container-wide">
+      <div class="schedule-header">
+        <div>
+          <button class="back-btn" onclick="showScreen('screen-config')" style="margin-bottom:0.4rem;">
+            ← Back
+          </button>
+          <h2><span class="gradient-text">Your Service Schedule</span></h2>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">
+          ⬇ Export CSV
+        </button>
+      </div>
+
+      <div class="schedule-stats" id="schedule-stats"></div>
+
+      <div id="overdue-banner" class="overdue-banner">
+        <span class="overdue-banner-icon">⚠️</span>
+        <div id="overdue-banner-text"></div>
+      </div>
+
+      <div id="trips-container"></div>
+    </div>
+  </div>
+
+  <script>
+  // ════════════════════════════════════════════════
+  //  STATE
+  // ════════════════════════════════════════════════
+  const AppState = {
+    headers: [],
+    rawRows: [],
+    sheetName: '',
+    mapping: { name: null, contact: null, address: null, lastService: null, nextDue: null },
+    config: { startDate: null, workingDays: [1,2,3,4,5] },
+    customers: [],
+    schedule: [],
+  };
+
+  const MAPPING_FIELDS = [
+    { key: 'name',        label: 'Customer Name',     hint: 'Full name or company' },
+    { key: 'contact',     label: 'Contact Info',      hint: 'Phone, email, or both' },
+    { key: 'address',     label: 'Address',           hint: 'Must contain the postal code' },
+    { key: 'lastService', label: 'Last Service Date', hint: 'Date of most recent visit' },
+    { key: 'nextDue',     label: 'Next Due Date',     hint: 'Deadline for next service' },
+  ];
+
+  // ════════════════════════════════════════════════
+  //  NAVIGATION
+  // ════════════════════════════════════════════════
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // ════════════════════════════════════════════════
+  //  SCREEN 1 – UPLOAD
+  // ════════════════════════════════════════════════
+  function initUpload() {
+    const zone = document.getElementById('drop-zone');
+    const input = document.getElementById('file-input');
+
+    zone.addEventListener('click', () => input.click());
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const f = e.dataTransfer.files[0];
+      if (f) handleFile(f);
+    });
+    input.addEventListener('change', () => { if (input.files[0]) handleFile(input.files[0]); });
+  }
+
+  function handleFile(file) {
+    const errEl = document.getElementById('upload-error');
+    errEl.classList.remove('visible');
+
+    if (!/\.(xlsx|xls)$/i.test(file.name)) {
+      errEl.textContent = 'Please upload an Excel file (.xlsx or .xls).';
+      errEl.classList.add('visible');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array', cellDates: true });
+        const sheetName = wb.SheetNames[0];
+        const sheet = wb.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
+
+        // Re-read with cellDates to get actual Date objects
+        const wb2 = XLSX.read(new Uint8Array(e.target.result), { type: 'array', cellDates: true });
+        const sheet2 = wb2.Sheets[wb2.SheetNames[0]];
+        const rowsWithDates = XLSX.utils.sheet_to_json(sheet2, { header: 1, raw: true });
+
+        if (!rows || rows.length < 2) {
+          errEl.textContent = 'The file appears to be empty or has no data rows.';
+          errEl.classList.add('visible');
+          return;
+        }
+
+        AppState.sheetName = sheetName;
+        AppState.headers = (rows[0] || []).map(h => String(h ?? '').trim()).filter(Boolean);
+        AppState.rawRows = rows.slice(1);
+        AppState.rawRowsWithDates = rowsWithDates.slice(1);
+        AppState.headerIndices = (rows[0] || []).map(h => String(h ?? '').trim());
+
+        initMappingScreen();
+        showScreen('screen-mapping');
+      } catch (err) {
+        errEl.textContent = 'Could not read the file. Make sure it is a valid Excel file.';
+        errEl.classList.add('visible');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // ════════════════════════════════════════════════
+  //  SCREEN 2 – COLUMN MAPPING
+  // ════════════════════════════════════════════════
+  function initMappingScreen() {
+    renderPreviewTable();
+    renderMappingRows();
+    document.getElementById('sheet-name-note').textContent =
+      `Using sheet: "${AppState.sheetName}" · ${AppState.rawRows.length} data rows detected.`;
+  }
+
+  function renderPreviewTable() {
+    const table = document.getElementById('preview-table');
+    const allHeaders = AppState.headerIndices;
+    const previewRows = AppState.rawRows.slice(0, 3);
+
+    let html = '<thead><tr>' + allHeaders.map(h => `<th>${escapeHtml(h)}</th>`).join('') + '</tr></thead>';
+    html += '<tbody>';
+    previewRows.forEach(row => {
+      html += '<tr>' + allHeaders.map((_, i) => `<td>${escapeHtml(String(row[i] ?? ''))}</td>`).join('') + '</tr>';
+    });
+    html += '</tbody>';
+    table.innerHTML = html;
+  }
+
+  function renderMappingRows() {
+    const container = document.getElementById('mapping-rows');
+    // Use original column indices (headerIndices) so empty-header columns don't shift mapping
+    const options = AppState.headerIndices
+      .map((h, i) => h ? `<option value="${i}">${escapeHtml(h)}</option>` : '')
+      .join('');
+
+    container.innerHTML = MAPPING_FIELDS.map(f => `
+      <div class="mapping-row">
+        <div class="mapping-label">${f.label}<span>${f.hint}</span></div>
+        <select id="map-${f.key}">
+          <option value="">-- select column --</option>
+          ${options}
+        </select>
+      </div>
+    `).join('');
+
+    // Auto-detect common column names
+    autoDetectMappings();
+  }
+
+  function autoDetectMappings() {
+    const patterns = {
+      name:        [/naam|name|klant|customer|bedrijf|company/i],
+      contact:     [/telefoon|phone|tel|mobiel|mobile|email|contact/i],
+      address:     [/adres|address|straat|street|locatie|location/i],
+      lastService: [/laatste|last.?service|vorige|prev/i],
+      nextDue:     [/volgende|next.?due|vervaldatum|due.?date|deadline/i],
+    };
+    const headers = AppState.headerIndices;
+    Object.entries(patterns).forEach(([key, pats]) => {
+      const idx = headers.findIndex(h => pats.some(p => p.test(h)));
+      if (idx !== -1) {
+        const sel = document.getElementById(`map-${key}`);
+        if (sel) sel.value = String(idx);
+      }
+    });
+  }
+
+  function applyMapping() {
+    const errEl = document.getElementById('mapping-error');
+    errEl.classList.remove('visible');
+
+    const mapping = {};
+    let errors = [];
+
+    MAPPING_FIELDS.forEach(f => {
+      const val = document.getElementById(`map-${f.key}`).value;
+      if (val === '') {
+        errors.push(`"${f.label}" is not mapped.`);
+      } else {
+        mapping[f.key] = parseInt(val, 10);
+      }
+    });
+
+    if (errors.length) {
+      errEl.textContent = errors.join(' ');
+      errEl.classList.add('visible');
+      return;
+    }
+
+    // Check for duplicates
+    const indices = Object.values(mapping);
+    const unique = new Set(indices);
+    if (unique.size !== indices.length) {
+      errEl.textContent = 'Two fields cannot be mapped to the same column.';
+      errEl.classList.add('visible');
+      return;
+    }
+
+    AppState.mapping = mapping;
+    normalizeCustomers();
+    initConfigScreen();
+    showScreen('screen-config');
+  }
+
+  // ════════════════════════════════════════════════
+  //  DATA NORMALISATION
+  // ════════════════════════════════════════════════
+  function normalizeCustomers() {
+    const { name, contact, address, lastService, nextDue } = AppState.mapping;
+    const allHeaders = AppState.headerIndices;
+
+    AppState.customers = AppState.rawRows
+      .map((row, rowIdx) => {
+        const datesRow = AppState.rawRowsWithDates[rowIdx] || [];
+        const customerName = String(row[name] ?? '').trim();
+        if (!customerName) return null;
+
+        const addressStr = String(row[address] ?? '').trim();
+        return {
+          name: customerName,
+          contact: String(row[contact] ?? '').trim(),
+          address: addressStr,
+          lastServiceDate: parseDate(datesRow[lastService] ?? row[lastService]),
+          nextDueDate: parseDate(datesRow[nextDue] ?? row[nextDue]),
+          postalCode: extractPostalCode(addressStr),
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function extractPostalCode(addr) {
+    if (!addr) return null;
+    // Dutch format: 4 digits + optional space + 2 uppercase letters
+    const m = addr.match(/\b(\d{4})\s?[A-Za-z]{2}\b/);
+    if (m) return m[1];
+    // Fallback: bare 4-digit sequence in postal range 1000-9999
+    const m2 = addr.match(/\b(\d{4})\b/);
+    if (m2) {
+      const n = parseInt(m2[1], 10);
+      if (n >= 1000 && n <= 9999) return m2[1];
+    }
+    return null;
+  }
+
+  function parseDate(val) {
+    if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
+    if (val === null || val === undefined || val === '') return null;
+    if (typeof val === 'number') {
+      // Excel serial number
+      const parsed = XLSX.SSF.parse_date_code(val);
+      if (parsed) return new Date(parsed.y, parsed.m - 1, parsed.d);
+      return null;
+    }
+    const s = String(val).trim();
+    if (!s) return null;
+
+    // Dutch dd-mm-yyyy or dd/mm/yyyy
+    const dutch = s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+    if (dutch) {
+      const d = new Date(`${dutch[3]}-${dutch[2].padStart(2,'0')}-${dutch[1].padStart(2,'0')}`);
+      if (!isNaN(d.getTime())) return d;
+    }
+    // ISO or other formats
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // ════════════════════════════════════════════════
+  //  SCREEN 3 – CONFIGURATION
+  // ════════════════════════════════════════════════
+  function initConfigScreen() {
+    const today = new Date();
+    document.getElementById('start-date').value = today.toISOString().split('T')[0];
+
+    document.querySelectorAll('.day-toggle').forEach(btn => {
+      btn.addEventListener('click', () => btn.classList.toggle('active'));
+    });
+  }
+
+  function getSelectedWorkingDays() {
+    return Array.from(document.querySelectorAll('.day-toggle.active'))
+      .map(b => parseInt(b.dataset.day, 10));
+  }
+
+  function generateSchedule() {
+    const errEl = document.getElementById('config-error');
+    errEl.classList.remove('visible');
+
+    const startVal = document.getElementById('start-date').value;
+    if (!startVal) {
+      errEl.textContent = 'Please select a start date.';
+      errEl.classList.add('visible');
+      return;
+    }
+    const workingDays = getSelectedWorkingDays();
+    if (workingDays.length === 0) {
+      errEl.textContent = 'Please select at least one working day.';
+      errEl.classList.add('visible');
+      return;
+    }
+
+    AppState.config.startDate = new Date(startVal + 'T00:00:00');
+    AppState.config.workingDays = workingDays;
+
+    buildSchedule();
+    renderSchedule();
+    showScreen('screen-schedule');
+  }
+
+  // ════════════════════════════════════════════════
+  //  SCHEDULING ALGORITHM
+  // ════════════════════════════════════════════════
+  function buildSchedule() {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    // Group by postal code
+    const groups = {};
+    AppState.customers.forEach(c => {
+      const key = c.postalCode ?? 'UNKNOWN';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(c);
+    });
+
+    // Compute urgency per group
+    const groupList = Object.entries(groups).map(([postalCode, members]) => {
+      const dates = members.map(m => m.nextDueDate).filter(d => d instanceof Date && !isNaN(d.getTime()));
+      const urgency = dates.length ? new Date(Math.min(...dates)) : null;
+      const isOverdue = urgency !== null && urgency < today;
+      return { postalCode, members, urgency, isOverdue };
+    });
+
+    // Sort: null urgency last, then ascending by urgency date
+    groupList.sort((a, b) => {
+      if (a.urgency === null && b.urgency === null) return 0;
+      if (a.urgency === null) return 1;
+      if (b.urgency === null) return -1;
+      return a.urgency - b.urgency;
+    });
+
+    // Generate working date sequence
+    const dates = generateWorkingDates(AppState.config.startDate, groupList.length, AppState.config.workingDays);
+
+    AppState.schedule = groupList.map((g, i) => ({
+      date: dates[i],
+      postalCode: g.postalCode,
+      members: g.members,
+      urgency: g.urgency,
+      isOverdue: g.isOverdue,
+    }));
+  }
+
+  function generateWorkingDates(from, count, allowedDays) {
+    const dates = [];
+    const cursor = new Date(from);
+    cursor.setHours(0,0,0,0);
+    while (dates.length < count) {
+      if (allowedDays.includes(cursor.getDay())) {
+        dates.push(new Date(cursor));
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return dates;
+  }
+
+  // ════════════════════════════════════════════════
+  //  SCREEN 4 – RENDER SCHEDULE
+  // ════════════════════════════════════════════════
+  function getCustomerStatus(dueDate) {
+    if (!dueDate || isNaN(dueDate.getTime())) return 'unknown';
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (dueDate < today) return 'overdue';
+    const diff = dueDate - today;
+    if (diff <= 7 * 86400000) return 'due-soon';
+    return 'ok';
+  }
+
+  function renderSchedule() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const schedule = AppState.schedule;
+
+    // Stats
+    const totalCustomers = AppState.customers.length;
+    const overdueGroups = schedule.filter(t => t.isOverdue);
+    const statsEl = document.getElementById('schedule-stats');
+    statsEl.innerHTML = [
+      `<span class="stat-chip"><strong>${totalCustomers}</strong> customers</span>`,
+      `<span class="stat-chip"><strong>${schedule.length}</strong> trips</span>`,
+      overdueGroups.length
+        ? `<span class="stat-chip" style="border-color:rgba(239,68,68,0.4);"><strong style="color:#fca5a5;">${overdueGroups.length}</strong> area${overdueGroups.length>1?'s':''} overdue</span>`
+        : `<span class="stat-chip" style="border-color:rgba(34,197,94,0.3);">All on schedule ✓</span>`,
+    ].join('');
+
+    // Overdue banner
+    const bannerEl = document.getElementById('overdue-banner');
+    const bannerText = document.getElementById('overdue-banner-text');
+    if (overdueGroups.length) {
+      const areas = overdueGroups.map(g => g.postalCode).join(', ');
+      bannerText.innerHTML = `<strong>Overdue areas:</strong> ${escapeHtml(areas)}<br>
+        These customers are past their service due date and should be prioritised.`;
+      bannerEl.classList.add('visible');
+    } else {
+      bannerEl.classList.remove('visible');
+    }
+
+    // Trip cards
+    const container = document.getElementById('trips-container');
+    container.innerHTML = '';
+
+    schedule.forEach(trip => {
+      const card = document.createElement('div');
+      card.className = 'trip-card';
+
+      // Determine worst status in trip for border color
+      const statuses = trip.members.map(m => getCustomerStatus(m.nextDueDate));
+      if (trip.isOverdue || statuses.includes('overdue')) card.classList.add('is-overdue');
+      else if (statuses.includes('due-soon')) card.classList.add('has-due-soon');
+      else if (statuses.every(s => s === 'unknown')) card.classList.add('no-date');
+
+      const dateLabel = trip.date
+        ? trip.date.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+        : 'Unscheduled';
+
+      const areaLabel = trip.postalCode === 'UNKNOWN'
+        ? '<span class="badge badge-warning">No postal code</span>'
+        : `<span class="trip-area-badge">${escapeHtml(trip.postalCode)}XX</span>`;
+
+      card.innerHTML = `
+        <div class="trip-header">
+          <span class="trip-date">${escapeHtml(dateLabel)}</span>
+          ${areaLabel}
+          <span class="trip-count">${trip.members.length} customer${trip.members.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="customer-list">
+          ${trip.members.map(m => {
+            const status = getCustomerStatus(m.nextDueDate);
+            const badgeClass = { overdue:'badge-overdue', 'due-soon':'badge-due-soon', ok:'badge-ok', unknown:'badge-unknown' }[status];
+            const badgeText = {
+              overdue: m.nextDueDate ? `Overdue ${formatDateShort(m.nextDueDate)}` : 'Overdue',
+              'due-soon': `Due ${formatDateShort(m.nextDueDate)}`,
+              ok: `Due ${formatDateShort(m.nextDueDate)}`,
+              unknown: 'No date',
+            }[status];
+            const contactHtml = m.contact
+              ? (m.contact.match(/^\+?[\d\s\-().]{6,}$/)
+                  ? `<a href="tel:${escapeHtml(m.contact.replace(/\s/g,''))}">${escapeHtml(m.contact)}</a>`
+                  : escapeHtml(m.contact))
+              : '<span style="opacity:0.4;">—</span>';
+            return `
+              <div class="customer-row">
+                <span class="customer-name">${escapeHtml(m.name)}</span>
+                <span class="customer-contact">${contactHtml}</span>
+                <span class="customer-due"><span class="badge ${badgeClass}">${badgeText}</span></span>
+              </div>`;
+          }).join('')}
+        </div>`;
+
+      container.appendChild(card);
+    });
+  }
+
+  // ════════════════════════════════════════════════
+  //  CSV EXPORT
+  // ════════════════════════════════════════════════
+  function exportCSV() {
+    const header = ['Trip Date','Postal Area','Customer Name','Contact','Address','Last Service Date','Next Due Date','Status'];
+    const rows = [];
+    AppState.schedule.forEach(trip => {
+      trip.members.forEach(m => {
+        rows.push([
+          trip.date ? trip.date.toISOString().split('T')[0] : '',
+          trip.postalCode ?? '',
+          m.name,
+          m.contact,
+          m.address,
+          m.lastServiceDate ? m.lastServiceDate.toISOString().split('T')[0] : '',
+          m.nextDueDate ? m.nextDueDate.toISOString().split('T')[0] : '',
+          getCustomerStatus(m.nextDueDate),
+        ]);
+      });
+    });
+
+    const csv = [header, ...rows]
+      .map(row => row.map(cell => {
+        const s = String(cell ?? '');
+        return (s.includes(',') || s.includes('"') || s.includes('\n'))
+          ? '"' + s.replace(/"/g, '""') + '"'
+          : s;
+      }).join(','))
+      .join('\r\n');
+
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'service-schedule.csv'; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  // ════════════════════════════════════════════════
+  //  UTILS
+  // ════════════════════════════════════════════════
+  function formatDateShort(d) {
+    if (!d || isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  function escapeHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ════════════════════════════════════════════════
+  //  INIT
+  // ════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', () => {
+    initUpload();
+    showScreen('screen-upload');
+  });
+  </script>
+</body>
+</html>
