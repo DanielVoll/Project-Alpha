@@ -346,6 +346,15 @@
         </div>
 
         <div class="config-group">
+          <label class="config-label" for="max-per-day">Max customers per day</label>
+          <input type="number" id="max-per-day" min="1" max="999" placeholder="e.g. 10"
+            style="background:var(--glass-bg-strong);border:1px solid var(--glass-border);color:#fff;
+                   font-family:inherit;font-size:0.95rem;padding:0.6rem 0.85rem;
+                   border-radius:var(--radius-sm);width:100%;max-width:160px;">
+          <p class="config-sub">Leave empty for no limit. Groups that exceed this are split across days.</p>
+        </div>
+
+        <div class="config-group">
           <span class="config-label">Working days</span>
           <div class="weekday-toggles" id="weekday-toggles">
             <button class="day-toggle active" data-day="1">Mon</button>
@@ -403,8 +412,8 @@
     headers: [],
     rawRows: [],
     sheetName: '',
-    mapping: { name: null, contact: null, address: null, lastService: null, nextDue: null },
-    config: { startDate: null, workingDays: [1,2,3,4,5] },
+    mapping: { name: null, contact: null, address: null, lastService: null },
+    config: { startDate: null, workingDays: [1,2,3,4,5], maxPerDay: 0 },
     customers: [],
     schedule: [],
   };
@@ -413,8 +422,7 @@
     { key: 'name',        label: 'Customer Name',     hint: 'Full name or company' },
     { key: 'contact',     label: 'Contact Info',      hint: 'Phone, email, or both' },
     { key: 'address',     label: 'Address',           hint: 'Must contain the postal code' },
-    { key: 'lastService', label: 'Last Service Date', hint: 'Date of most recent visit' },
-    { key: 'nextDue',     label: 'Next Due Date',     hint: 'Deadline for next service' },
+    { key: 'lastService', label: 'Last Service Date', hint: 'Next due date = this + 1 year' },
   ];
 
   // ════════════════════════════════════════════════
@@ -541,7 +549,6 @@
       contact:     [/telefoon|phone|tel|mobiel|mobile|email|contact/i],
       address:     [/adres|address|straat|street|locatie|location/i],
       lastService: [/laatste|last.?service|vorige|prev/i],
-      nextDue:     [/volgende|next.?due|vervaldatum|due.?date|deadline/i],
     };
     const headers = AppState.headerIndices;
     Object.entries(patterns).forEach(([key, pats]) => {
@@ -594,8 +601,7 @@
   //  DATA NORMALISATION
   // ════════════════════════════════════════════════
   function normalizeCustomers() {
-    const { name, contact, address, lastService, nextDue } = AppState.mapping;
-    const allHeaders = AppState.headerIndices;
+    const { name, contact, address, lastService } = AppState.mapping;
 
     AppState.customers = AppState.rawRows
       .map((row, rowIdx) => {
@@ -604,16 +610,24 @@
         if (!customerName) return null;
 
         const addressStr = String(row[address] ?? '').trim();
+        const lastServiceDate = parseDate(datesRow[lastService] ?? row[lastService]);
+        const nextDueDate = lastServiceDate ? addOneYear(lastServiceDate) : null;
         return {
           name: customerName,
           contact: String(row[contact] ?? '').trim(),
           address: addressStr,
-          lastServiceDate: parseDate(datesRow[lastService] ?? row[lastService]),
-          nextDueDate: parseDate(datesRow[nextDue] ?? row[nextDue]),
+          lastServiceDate,
+          nextDueDate,
           postalCode: extractPostalCode(addressStr),
         };
       })
       .filter(Boolean);
+  }
+
+  function addOneYear(date) {
+    const d = new Date(date);
+    d.setFullYear(d.getFullYear() + 1);
+    return d;
   }
 
   function extractPostalCode(addr) {
@@ -689,6 +703,7 @@
 
     AppState.config.startDate = new Date(startVal + 'T00:00:00');
     AppState.config.workingDays = workingDays;
+    AppState.config.maxPerDay = parseInt(document.getElementById('max-per-day').value, 10) || 0;
 
     buildSchedule();
     renderSchedule();
@@ -701,6 +716,7 @@
   function buildSchedule() {
     const today = new Date();
     today.setHours(0,0,0,0);
+    const maxPerDay = AppState.config.maxPerDay; // 0 = no limit
 
     // Group by postal code
     const groups = {};
@@ -726,16 +742,42 @@
       return a.urgency - b.urgency;
     });
 
-    // Generate working date sequence
-    const dates = generateWorkingDates(AppState.config.startDate, groupList.length, AppState.config.workingDays);
+    // Split groups that exceed maxPerDay into chunks
+    const chunks = [];
+    groupList.forEach(group => {
+      if (maxPerDay && group.members.length > maxPerDay) {
+        for (let i = 0; i < group.members.length; i += maxPerDay) {
+          chunks.push({ ...group, members: group.members.slice(i, i + maxPerDay) });
+        }
+      } else {
+        chunks.push(group);
+      }
+    });
 
-    AppState.schedule = groupList.map((g, i) => ({
-      date: dates[i],
-      postalCode: g.postalCode,
-      members: g.members,
-      urgency: g.urgency,
-      isOverdue: g.isOverdue,
-    }));
+    // Assign chunks to working days, packing multiple chunks per day when cap allows
+    const dateSeq = generateWorkingDates(AppState.config.startDate, chunks.length + 365, AppState.config.workingDays);
+    const trips = [];
+    let dayIdx = 0;
+    let dayCount = 0;
+
+    chunks.forEach(chunk => {
+      if (maxPerDay && dayCount > 0 && dayCount + chunk.members.length > maxPerDay) {
+        dayIdx++;
+        dayCount = 0;
+      }
+      trips.push({
+        date: dateSeq[dayIdx],
+        postalCode: chunk.postalCode,
+        members: chunk.members,
+        urgency: chunk.urgency,
+        isOverdue: chunk.isOverdue,
+      });
+      dayCount += chunk.members.length;
+      // Without a cap, each chunk gets its own day
+      if (!maxPerDay) { dayIdx++; dayCount = 0; }
+    });
+
+    AppState.schedule = trips;
   }
 
   function generateWorkingDates(from, count, allowedDays) {
