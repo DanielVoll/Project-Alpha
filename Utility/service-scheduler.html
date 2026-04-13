@@ -11,973 +11,973 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg-from: #1a1040;
-      --bg-to: #0d0d1f;
+      --bg-from: #1a1040; --bg-to: #0d0d1f;
       --glass-bg: rgba(255,255,255,0.06);
       --glass-bg-strong: rgba(255,255,255,0.1);
       --glass-border: rgba(255,255,255,0.12);
       --blur: 12px;
-      --accent-purple: #7c3aed;
-      --accent-blue: #3b82f6;
+      --accent-purple: #7c3aed; --accent-blue: #3b82f6;
       --accent-gradient: linear-gradient(135deg, #7c3aed, #3b82f6);
-      --overdue-red: #ef4444;
-      --due-soon-orange: #f97316;
-      --ok-green: #22c55e;
-      --unknown-gray: #6b7280;
-      --text-muted: rgba(255,255,255,0.5);
-      --radius: 16px;
-      --radius-sm: 8px;
+      --overdue-red: #ef4444; --due-soon-orange: #f97316; --ok-green: #22c55e;
+      --unknown-gray: #6b7280; --text-muted: rgba(255,255,255,0.5);
+      --radius: 16px; --radius-sm: 8px;
     }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, var(--bg-from) 0%, #0d0d1f 50%, #0a1628 100%);
-      min-height: 100vh;
-      color: #fff;
-      overflow-x: hidden;
+    body { font-family:'Inter',sans-serif; background:linear-gradient(135deg,var(--bg-from) 0%,#0d0d1f 50%,#0a1628 100%); min-height:100vh; color:#fff; overflow-x:hidden; }
+
+    .screen { display:none; min-height:100vh; padding:2rem 1rem; }
+    .screen.active { display:flex; flex-direction:column; align-items:center; }
+
+    .container { width:100%; max-width:700px; }
+    .container-wide { width:100%; max-width:1100px; }
+
+    .glass-card { background:var(--glass-bg); border:1px solid var(--glass-border); backdrop-filter:blur(var(--blur)); -webkit-backdrop-filter:blur(var(--blur)); border-radius:var(--radius); padding:2rem; }
+
+    .gradient-text { background:var(--accent-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    h1 { font-size:2rem; font-weight:700; margin-bottom:0.5rem; }
+    h2 { font-size:1.4rem; font-weight:600; margin-bottom:0.25rem; }
+    h3 { font-size:1.1rem; font-weight:600; }
+    p.subtitle { color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem; }
+
+    .btn { display:inline-flex; align-items:center; gap:0.5rem; padding:0.65rem 1.4rem; border-radius:50px; border:none; font-family:inherit; font-size:0.95rem; font-weight:600; cursor:pointer; transition:opacity 0.2s,transform 0.1s; }
+    .btn:active { transform:scale(0.97); }
+    .btn-primary { background:var(--accent-gradient); color:#fff; }
+    .btn-primary:hover { opacity:0.88; }
+    .btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+    .btn-ghost { background:var(--glass-bg); border:1px solid var(--glass-border); color:rgba(255,255,255,0.8); }
+    .btn-ghost:hover { background:var(--glass-bg-strong); }
+    .btn-sm { padding:0.45rem 1rem; font-size:0.85rem; }
+
+    .back-btn { display:inline-flex; align-items:center; gap:0.4rem; background:none; border:none; color:var(--text-muted); font-family:inherit; font-size:0.9rem; cursor:pointer; margin-bottom:1.5rem; padding:0; transition:color 0.2s; }
+    .back-btn:hover { color:#fff; }
+
+    .error-msg { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); border-radius:var(--radius-sm); padding:0.75rem 1rem; color:#fca5a5; font-size:0.9rem; margin-top:1rem; display:none; }
+    .error-msg.visible { display:block; }
+
+    /* ── Inputs ── */
+    input[type="text"], input[type="date"], input[type="time"], input[type="number"] {
+      background:var(--glass-bg-strong); border:1px solid var(--glass-border); color:#fff;
+      font-family:inherit; font-size:0.95rem; padding:0.6rem 0.85rem; border-radius:var(--radius-sm);
     }
-
-    /* ── Screens ── */
-    .screen { display: none; min-height: 100vh; padding: 2rem 1rem; }
-    .screen.active { display: flex; flex-direction: column; align-items: center; }
-
-    /* ── Common ── */
-    .container { width: 100%; max-width: 680px; }
-    .container-wide { width: 100%; max-width: 1100px; }
-
-    .glass-card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(var(--blur));
-      -webkit-backdrop-filter: blur(var(--blur));
-      border-radius: var(--radius);
-      padding: 2rem;
+    input::-webkit-calendar-picker-indicator { filter:invert(1) opacity(0.5); }
+    input[type="number"] { width:80px; text-align:center; }
+    input[type="text"] { width:100%; }
+    select {
+      background:var(--glass-bg-strong); border:1px solid var(--glass-border); color:#fff;
+      font-family:inherit; font-size:0.9rem; padding:0.5rem 0.75rem; border-radius:var(--radius-sm);
+      flex:1; min-width:0; cursor:pointer; appearance:none; -webkit-appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.5)' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 0.75rem center; padding-right:2rem;
     }
-
-    .gradient-text {
-      background: var(--accent-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
-    h2 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.25rem; }
-    h3 { font-size: 1.1rem; font-weight: 600; }
-
-    p.subtitle { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
-
-    .btn {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.65rem 1.4rem; border-radius: 50px; border: none;
-      font-family: inherit; font-size: 0.95rem; font-weight: 600;
-      cursor: pointer; transition: opacity 0.2s, transform 0.1s;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary {
-      background: var(--accent-gradient); color: #fff;
-    }
-    .btn-primary:hover { opacity: 0.88; }
-    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-    .btn-ghost {
-      background: var(--glass-bg); border: 1px solid var(--glass-border); color: rgba(255,255,255,0.8);
-    }
-    .btn-ghost:hover { background: var(--glass-bg-strong); }
-    .btn-sm { padding: 0.45rem 1rem; font-size: 0.85rem; }
-
-    .back-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      background: none; border: none; color: var(--text-muted);
-      font-family: inherit; font-size: 0.9rem; cursor: pointer;
-      margin-bottom: 1.5rem; padding: 0; transition: color 0.2s;
-    }
-    .back-btn:hover { color: #fff; }
-
-    .error-msg {
-      background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35);
-      border-radius: var(--radius-sm); padding: 0.75rem 1rem;
-      color: #fca5a5; font-size: 0.9rem; margin-top: 1rem; display: none;
-    }
-    .error-msg.visible { display: block; }
+    select option { background:#1a1040; }
 
     /* ── Screen 1: Upload ── */
-    #screen-upload { justify-content: center; }
-    .upload-header { text-align: center; margin-bottom: 2rem; }
-    .upload-header .icon { font-size: 3rem; margin-bottom: 0.75rem; }
+    #screen-upload { justify-content:center; }
+    .upload-header { text-align:center; margin-bottom:2rem; }
+    .upload-header .icon { font-size:3rem; margin-bottom:0.75rem; }
+    #drop-zone { border:2px dashed var(--glass-border); border-radius:var(--radius); padding:3rem 2rem; text-align:center; cursor:pointer; transition:border-color 0.2s,background 0.2s; }
+    #drop-zone:hover, #drop-zone.drag-over { border-color:var(--accent-purple); background:rgba(124,58,237,0.08); }
+    #drop-zone svg { opacity:0.5; margin-bottom:1rem; }
+    #drop-zone p { color:var(--text-muted); font-size:0.95rem; }
+    #drop-zone strong { color:#fff; }
+    #file-input { display:none; }
 
-    #drop-zone {
-      border: 2px dashed var(--glass-border);
-      border-radius: var(--radius);
-      padding: 3rem 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    #drop-zone:hover, #drop-zone.drag-over {
-      border-color: var(--accent-purple);
-      background: rgba(124,58,237,0.08);
-    }
-    #drop-zone svg { opacity: 0.5; margin-bottom: 1rem; }
-    #drop-zone p { color: var(--text-muted); font-size: 0.95rem; }
-    #drop-zone strong { color: #fff; }
-    #file-input { display: none; }
-
-    /* ── Screen 2: Column Mapping ── */
-    .mapping-preview {
-      overflow-x: auto; margin-bottom: 1.5rem;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--glass-border);
-    }
-    .mapping-preview table {
-      border-collapse: collapse; width: 100%; font-size: 0.82rem; min-width: 500px;
-    }
-    .mapping-preview th, .mapping-preview td {
-      padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--glass-border);
-      white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;
-    }
-    .mapping-preview th { background: var(--glass-bg-strong); color: rgba(255,255,255,0.7); font-weight: 500; }
-
-    .mapping-row {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);
-    }
-    .mapping-row:last-of-type { border-bottom: none; }
-    .mapping-label { font-size: 0.9rem; font-weight: 500; min-width: 160px; }
-    .mapping-label span { display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 400; }
-
-    select {
-      background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
-      color: #fff; font-family: inherit; font-size: 0.9rem;
-      padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);
-      flex: 1; min-width: 0; cursor: pointer;
-      appearance: none; -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.5)' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 0.75rem center;
-      padding-right: 2rem;
-    }
-    select option { background: #1a1040; }
+    /* ── Screen 2: Mapping ── */
+    .mapping-preview { overflow-x:auto; margin-bottom:1.5rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border); }
+    .mapping-preview table { border-collapse:collapse; width:100%; font-size:0.82rem; min-width:500px; }
+    .mapping-preview th,.mapping-preview td { padding:0.5rem 0.75rem; text-align:left; border-bottom:1px solid var(--glass-border); white-space:nowrap; max-width:160px; overflow:hidden; text-overflow:ellipsis; }
+    .mapping-preview th { background:var(--glass-bg-strong); color:rgba(255,255,255,0.7); font-weight:500; }
+    .mapping-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:0.75rem 0; border-bottom:1px solid var(--glass-border); }
+    .mapping-row:last-of-type { border-bottom:none; }
+    .mapping-label { font-size:0.9rem; font-weight:500; min-width:170px; }
+    .mapping-label span { display:block; font-size:0.78rem; color:var(--text-muted); font-weight:400; }
 
     /* ── Screen 3: Config ── */
-    .config-group { margin-bottom: 1.75rem; }
-    .config-label { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.6rem; display: block; }
-    .config-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .config-group { margin-bottom:1.75rem; }
+    .config-label { font-size:0.9rem; font-weight:600; margin-bottom:0.6rem; display:block; }
+    .config-sub { font-size:0.8rem; color:var(--text-muted); margin-top:0.3rem; }
+    .time-row { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .time-field label { display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:0.3rem; }
+    .time-field input[type="time"] { width:110px; }
+    .service-time-grid { display:grid; grid-template-columns:1fr auto; gap:0.6rem 1.2rem; align-items:center; }
+    .service-time-grid label { font-size:0.88rem; color:rgba(255,255,255,0.8); }
+    .weekday-toggles { display:flex; gap:0.5rem; flex-wrap:wrap; }
+    .day-toggle { padding:0.45rem 0.9rem; border-radius:50px; border:1px solid var(--glass-border); background:var(--glass-bg); color:rgba(255,255,255,0.7); font-family:inherit; font-size:0.85rem; font-weight:500; cursor:pointer; transition:all 0.2s; user-select:none; }
+    .day-toggle.active { background:var(--accent-gradient); border-color:transparent; color:#fff; }
 
-    input[type="date"] {
-      background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
-      color: #fff; font-family: inherit; font-size: 0.95rem;
-      padding: 0.6rem 0.85rem; border-radius: var(--radius-sm);
-      width: 100%; max-width: 220px;
-    }
-    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.5); }
+    /* ── Screen 4: Geocoding ── */
+    #screen-geo { justify-content:center; }
+    .geo-box { text-align:center; }
+    .geo-spinner { width:52px; height:52px; border:4px solid rgba(255,255,255,0.12); border-top-color:var(--accent-purple); border-radius:50%; animation:spin 0.9s linear infinite; margin:0 auto 1.5rem; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .progress-outer { background:var(--glass-bg-strong); border-radius:50px; height:6px; overflow:hidden; margin:1.2rem 0 0.5rem; }
+    .progress-inner { background:var(--accent-gradient); height:100%; border-radius:50px; transition:width 0.4s; }
+    #geo-label { color:var(--text-muted); font-size:0.85rem; margin-top:0.4rem; }
+    #geo-cache-note { font-size:0.75rem; color:rgba(255,255,255,0.3); margin-top:1.2rem; }
 
-    .weekday-toggles { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .day-toggle {
-      padding: 0.45rem 0.9rem; border-radius: 50px;
-      border: 1px solid var(--glass-border); background: var(--glass-bg);
-      color: rgba(255,255,255,0.7); font-family: inherit; font-size: 0.85rem;
-      font-weight: 500; cursor: pointer; transition: all 0.2s; user-select: none;
-    }
-    .day-toggle.active {
-      background: var(--accent-gradient); border-color: transparent; color: #fff;
-    }
+    /* ── Screen 5: Schedule ── */
+    .schedule-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap; }
+    .schedule-stats { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .stat-chip { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:50px; padding:0.35rem 0.9rem; font-size:0.82rem; color:rgba(255,255,255,0.75); }
+    .stat-chip strong { color:#fff; }
+    .overdue-banner { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:var(--radius-sm); padding:0.85rem 1.1rem; margin-bottom:1.5rem; font-size:0.9rem; color:#fca5a5; display:none; gap:0.6rem; }
+    .overdue-banner.visible { display:flex; align-items:flex-start; }
+    #trips-container { display:flex; flex-direction:column; gap:1.25rem; }
 
-    /* ── Screen 4: Schedule ── */
-    .schedule-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
-    }
-    .schedule-stats {
-      display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;
-    }
-    .stat-chip {
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-radius: 50px; padding: 0.35rem 0.9rem;
-      font-size: 0.82rem; color: rgba(255,255,255,0.75);
-    }
-    .stat-chip strong { color: #fff; }
+    /* Day card */
+    .day-card { background:var(--glass-bg); border:1px solid var(--glass-border); backdrop-filter:blur(var(--blur)); -webkit-backdrop-filter:blur(var(--blur)); border-radius:var(--radius); overflow:hidden; }
+    .day-header { display:flex; align-items:center; gap:0.85rem; padding:1rem 1.25rem; border-bottom:1px solid var(--glass-border); flex-wrap:wrap; }
+    .day-date { font-weight:700; font-size:1rem; }
+    .day-meta { margin-left:auto; display:flex; gap:0.6rem; flex-wrap:wrap; }
+    .day-chip { background:var(--glass-bg-strong); border-radius:50px; padding:0.2rem 0.7rem; font-size:0.78rem; color:rgba(255,255,255,0.7); }
 
-    .overdue-banner {
-      background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3);
-      border-radius: var(--radius-sm); padding: 0.85rem 1.1rem;
-      margin-bottom: 1.5rem; font-size: 0.9rem; color: #fca5a5;
-      display: none;
-    }
-    .overdue-banner.visible { display: flex; align-items: flex-start; gap: 0.6rem; }
-    .overdue-banner-icon { font-size: 1.1rem; flex-shrink: 0; }
+    /* Timeline */
+    .timeline { padding:0.85rem 0 0.5rem; }
+    .tl-row { display:grid; grid-template-columns:52px 18px 1fr; gap:0 0.5rem; }
+    .tl-time { font-size:0.8rem; font-weight:700; color:rgba(255,255,255,0.85); text-align:right; padding-top:1px; grid-column:1; line-height:1.2; }
+    .tl-spine { grid-column:2; display:flex; flex-direction:column; align-items:center; }
+    .tl-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:2px; }
+    .tl-dot-home { background:rgba(255,255,255,0.35); }
+    .tl-dot-ok { background:var(--ok-green); }
+    .tl-dot-soon { background:var(--due-soon-orange); }
+    .tl-dot-overdue { background:var(--overdue-red); }
+    .tl-dot-unknown { background:var(--unknown-gray); }
+    .tl-line { width:2px; background:rgba(255,255,255,0.08); flex:1; min-height:6px; }
+    .tl-body { grid-column:3; padding-bottom:0.6rem; }
 
-    #trips-container { display: flex; flex-direction: column; gap: 1rem; }
+    .tl-home-label { font-size:0.88rem; color:rgba(255,255,255,0.55); font-style:italic; padding-top:1px; }
+    .tl-drive { font-size:0.75rem; color:var(--text-muted); padding:0.2rem 0 0.3rem 0.5rem; }
 
-    .trip-card {
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-left: 4px solid var(--ok-green);
-      backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-    .trip-card.is-overdue { border-left-color: var(--overdue-red); }
-    .trip-card.has-due-soon { border-left-color: var(--due-soon-orange); }
-    .trip-card.no-date { border-left-color: var(--unknown-gray); }
+    .tl-card { background:var(--glass-bg-strong); border-radius:var(--radius-sm); padding:0.65rem 0.9rem; border-left:3px solid transparent; }
+    .tl-card.status-ok { border-left-color:var(--ok-green); }
+    .tl-card.status-soon { border-left-color:var(--due-soon-orange); }
+    .tl-card.status-overdue { border-left-color:var(--overdue-red); }
+    .tl-card.status-unknown { border-left-color:var(--unknown-gray); }
+    .tl-name { font-weight:600; font-size:0.92rem; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
+    .tl-address { font-size:0.79rem; color:rgba(255,255,255,0.45); margin-top:0.1rem; }
+    .tl-devices { font-size:0.81rem; color:rgba(255,255,255,0.6); margin-top:0.3rem; line-height:1.5; }
+    .tl-footer { display:flex; justify-content:space-between; align-items:center; margin-top:0.35rem; flex-wrap:wrap; gap:0.4rem; }
+    .tl-contact { font-size:0.79rem; }
+    .tl-contact a { color:#93c5fd; text-decoration:none; }
+    .tl-contact a:hover { text-decoration:underline; }
+    .tl-duration { font-size:0.78rem; color:var(--text-muted); }
 
-    .trip-header {
-      display: flex; align-items: center; gap: 0.85rem;
-      padding: 1rem 1.25rem; border-bottom: 1px solid var(--glass-border);
-      flex-wrap: wrap;
-    }
-    .trip-date { font-weight: 600; font-size: 1rem; }
-    .trip-area-badge {
-      background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
-      border-radius: 50px; padding: 0.2rem 0.75rem;
-      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;
-      color: rgba(255,255,255,0.85);
-    }
-    .trip-count { margin-left: auto; color: var(--text-muted); font-size: 0.82rem; }
+    /* Badges */
+    .badge { display:inline-block; padding:0.12rem 0.55rem; border-radius:50px; font-size:0.72rem; font-weight:600; white-space:nowrap; }
+    .badge-overdue { background:rgba(239,68,68,0.25); color:#fca5a5; }
+    .badge-soon { background:rgba(249,115,22,0.25); color:#fdba74; }
+    .badge-ok { background:rgba(34,197,94,0.18); color:#86efac; }
+    .badge-unknown { background:rgba(107,114,128,0.25); color:#9ca3af; }
+    .badge-warn { background:rgba(249,115,22,0.2); color:#fdba74; }
 
-    .customer-list { padding: 0.5rem 0; }
-    .customer-row {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 0.6rem 1.25rem; font-size: 0.88rem;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      flex-wrap: wrap;
-    }
-    .customer-row:last-child { border-bottom: none; }
-    .customer-name { font-weight: 500; min-width: 140px; flex: 1; }
-    .customer-contact {
-      color: var(--text-muted); font-size: 0.83rem; min-width: 120px; flex: 1;
-    }
-    .customer-contact a { color: #93c5fd; text-decoration: none; }
-    .customer-contact a:hover { text-decoration: underline; }
-    .customer-due { display: flex; align-items: center; gap: 0.4rem; }
+    /* Unscheduled section */
+    .unscheduled-section { margin-top:1.5rem; }
+    .unscheduled-section h3 { font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem; }
+    .unsched-row { display:flex; gap:0.75rem; align-items:center; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem; flex-wrap:wrap; }
+    .unsched-row:last-child { border-bottom:none; }
 
-    .badge {
-      display: inline-block; padding: 0.15rem 0.6rem; border-radius: 50px;
-      font-size: 0.75rem; font-weight: 600; white-space: nowrap;
-    }
-    .badge-overdue { background: rgba(239,68,68,0.25); color: #fca5a5; }
-    .badge-due-soon { background: rgba(249,115,22,0.25); color: #fdba74; }
-    .badge-ok { background: rgba(34,197,94,0.18); color: #86efac; }
-    .badge-unknown { background: rgba(107,114,128,0.25); color: #9ca3af; }
-    .badge-warning { background: rgba(249,115,22,0.2); color: #fdba74; }
-
-    /* ── Responsive ── */
-    @media (max-width: 600px) {
-      h1 { font-size: 1.5rem; }
-      .glass-card { padding: 1.25rem; }
-      .mapping-row { flex-direction: column; align-items: flex-start; }
-      .mapping-label { min-width: unset; }
-      select { width: 100%; }
-      .customer-row { gap: 0.5rem; }
-      .customer-name, .customer-contact { min-width: unset; flex: 1 1 100%; }
+    @media(max-width:600px) {
+      h1 { font-size:1.5rem; }
+      .glass-card { padding:1.25rem; }
+      .mapping-row { flex-direction:column; align-items:flex-start; }
+      .mapping-label { min-width:unset; }
+      select { width:100%; }
+      .tl-row { grid-template-columns:44px 14px 1fr; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════
-       SCREEN 1: UPLOAD
-  ═══════════════════════════════════════════ -->
-  <div id="screen-upload" class="screen active">
-    <div class="container">
-      <div class="upload-header">
-        <div class="icon">📋</div>
-        <h1><span class="gradient-text">Service Scheduler</span></h1>
-        <p class="subtitle">Upload your customer Excel sheet to generate a smart service trip schedule.</p>
+<!-- ═══════════════════════════════════════════
+     SCREEN 1: UPLOAD
+════════════════════════════════════════════ -->
+<div id="screen-upload" class="screen active">
+  <div class="container">
+    <div class="upload-header">
+      <div class="icon">📋</div>
+      <h1><span class="gradient-text">Service Scheduler</span></h1>
+      <p class="subtitle">Upload je klantenoverzicht om een optimale serviceplanning te maken.</p>
+    </div>
+    <div class="glass-card">
+      <div id="drop-zone">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <p><strong>Drop je .xlsx-bestand hier</strong></p>
+        <p style="margin-top:0.4rem;font-size:0.85rem;">of klik om te bladeren</p>
       </div>
-      <div class="glass-card">
-        <div id="drop-zone">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="17 8 12 3 7 8"/>
-            <line x1="12" y1="3" x2="12" y2="15"/>
-          </svg>
-          <p><strong>Drop your .xlsx file here</strong></p>
-          <p style="margin-top:0.4rem; font-size:0.85rem;">or click to browse</p>
-        </div>
-        <input type="file" id="file-input" accept=".xlsx,.xls">
-        <div id="upload-error" class="error-msg"></div>
+      <input type="file" id="file-input" accept=".xlsx,.xls">
+      <div id="upload-error" class="error-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 2: COLUMN MAPPING
+════════════════════════════════════════════ -->
+<div id="screen-mapping" class="screen">
+  <div class="container">
+    <button class="back-btn" onclick="showScreen('screen-upload')">← Terug</button>
+    <h2><span class="gradient-text">Kolommen koppelen</span></h2>
+    <p class="subtitle">Koppel jouw Excel-kolommen aan de juiste velden.</p>
+    <div class="glass-card" style="margin-bottom:1rem;">
+      <h3 style="margin-bottom:0.75rem;font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;">Voorbeeld (eerste 3 rijen)</h3>
+      <div class="mapping-preview"><table id="preview-table"></table></div>
+      <p id="sheet-name-note" style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem;"></p>
+    </div>
+    <div class="glass-card">
+      <div id="mapping-rows"></div>
+      <div id="mapping-error" class="error-msg"></div>
+      <div style="margin-top:1.5rem;text-align:right;">
+        <button class="btn btn-primary" onclick="applyMapping()">Verder →</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ═══════════════════════════════════════════
-       SCREEN 2: COLUMN MAPPING
-  ═══════════════════════════════════════════ -->
-  <div id="screen-mapping" class="screen">
-    <div class="container">
-      <button class="back-btn" onclick="showScreen('screen-upload')">
-        ← Back
-      </button>
-      <h2><span class="gradient-text">Map Your Columns</span></h2>
-      <p class="subtitle">Match your Excel columns to the fields the scheduler needs.</p>
+<!-- ═══════════════════════════════════════════
+     SCREEN 3: CONFIGURATION
+════════════════════════════════════════════ -->
+<div id="screen-config" class="screen">
+  <div class="container">
+    <button class="back-btn" onclick="showScreen('screen-mapping')">← Terug</button>
+    <h2><span class="gradient-text">Instellingen</span></h2>
+    <p class="subtitle">Stel je werkdag en servicetijden in.</p>
+    <div class="glass-card">
 
-      <div class="glass-card" style="margin-bottom:1rem;">
-        <h3 style="margin-bottom:0.75rem; font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em;">Preview (first 3 rows)</h3>
-        <div class="mapping-preview">
-          <table id="preview-table"></table>
-        </div>
-        <p id="sheet-name-note" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.5rem;"></p>
+      <div class="config-group">
+        <label class="config-label" for="home-location">Vertreklocatie</label>
+        <input type="text" id="home-location" value="Boerakker, Netherlands" placeholder="Stad of adres">
+        <p class="config-sub">Elke dag vertrek je hier en kom je hier ook terug.</p>
       </div>
 
-      <div class="glass-card">
-        <div id="mapping-rows"></div>
-        <div id="mapping-error" class="error-msg"></div>
-        <div style="margin-top:1.5rem; text-align:right;">
-          <button class="btn btn-primary" onclick="applyMapping()">Continue →</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       SCREEN 3: CONFIGURATION
-  ═══════════════════════════════════════════ -->
-  <div id="screen-config" class="screen">
-    <div class="container">
-      <button class="back-btn" onclick="showScreen('screen-mapping')">
-        ← Back
-      </button>
-      <h2><span class="gradient-text">Scheduling Configuration</span></h2>
-      <p class="subtitle">Set your working days and when to start scheduling trips.</p>
-
-      <div class="glass-card">
-        <div class="config-group">
-          <label class="config-label" for="start-date">Start scheduling from</label>
-          <input type="date" id="start-date">
-          <p class="config-sub">Trips will be assigned starting on this date.</p>
-        </div>
-
-        <div class="config-group">
-          <label class="config-label" for="max-per-day">Max customers per day</label>
-          <input type="number" id="max-per-day" min="1" max="999" placeholder="e.g. 10"
-            style="background:var(--glass-bg-strong);border:1px solid var(--glass-border);color:#fff;
-                   font-family:inherit;font-size:0.95rem;padding:0.6rem 0.85rem;
-                   border-radius:var(--radius-sm);width:100%;max-width:160px;">
-          <p class="config-sub">Leave empty for no limit. Groups that exceed this are split across days.</p>
-        </div>
-
-        <div class="config-group">
-          <span class="config-label">Working days</span>
-          <div class="weekday-toggles" id="weekday-toggles">
-            <button class="day-toggle active" data-day="1">Mon</button>
-            <button class="day-toggle active" data-day="2">Tue</button>
-            <button class="day-toggle active" data-day="3">Wed</button>
-            <button class="day-toggle active" data-day="4">Thu</button>
-            <button class="day-toggle active" data-day="5">Fri</button>
-            <button class="day-toggle" data-day="6">Sat</button>
-            <button class="day-toggle" data-day="0">Sun</button>
+      <div class="config-group">
+        <span class="config-label">Werkdag</span>
+        <div class="time-row">
+          <div class="time-field">
+            <label>Vertrek</label>
+            <input type="time" id="work-start" value="08:00">
           </div>
-          <p class="config-sub">Select the days you can do service trips.</p>
+          <span style="color:var(--text-muted);margin-top:1.4rem;">→</span>
+          <div class="time-field">
+            <label>Thuis uiterlijk</label>
+            <input type="time" id="work-end" value="17:00">
+          </div>
         </div>
+      </div>
 
-        <div id="config-error" class="error-msg"></div>
-        <div style="margin-top:1.5rem; text-align:right;">
-          <button class="btn btn-primary" onclick="generateSchedule()">Generate Schedule →</button>
+      <div class="config-group">
+        <span class="config-label">Servicetijden</span>
+        <div class="service-time-grid">
+          <label>Praatje / voorbereiding per klant</label>
+          <div style="display:flex;align-items:center;gap:0.4rem;">
+            <input type="number" id="st-setup" value="10" min="0" max="120"> <span style="font-size:0.82rem;color:var(--text-muted);">min</span>
+          </div>
+          <label>Tijd per apparaat</label>
+          <div style="display:flex;align-items:center;gap:0.4rem;">
+            <input type="number" id="st-device" value="20" min="5" max="240"> <span style="font-size:0.82rem;color:var(--text-muted);">min</span>
+          </div>
         </div>
+        <p class="config-sub">Totale tijd per klant = praatje + (apparaten × tijd per apparaat)</p>
+      </div>
+
+      <div class="config-group">
+        <label class="config-label" for="start-date">Inplannen vanaf</label>
+        <input type="date" id="start-date" style="max-width:220px;">
+        <p class="config-sub">De eerste werkdag vanaf deze datum.</p>
+      </div>
+
+      <div class="config-group">
+        <span class="config-label">Werkdagen</span>
+        <div class="weekday-toggles" id="weekday-toggles">
+          <button class="day-toggle active" data-day="1">Ma</button>
+          <button class="day-toggle active" data-day="2">Di</button>
+          <button class="day-toggle active" data-day="3">Wo</button>
+          <button class="day-toggle active" data-day="4">Do</button>
+          <button class="day-toggle active" data-day="5">Vr</button>
+          <button class="day-toggle" data-day="6">Za</button>
+          <button class="day-toggle" data-day="0">Zo</button>
+        </div>
+      </div>
+
+      <div id="config-error" class="error-msg"></div>
+      <div style="margin-top:1.5rem;text-align:right;">
+        <button class="btn btn-primary" onclick="startGeocoding()">Locaties opzoeken →</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ═══════════════════════════════════════════
-       SCREEN 4: SCHEDULE VIEW
-  ═══════════════════════════════════════════ -->
-  <div id="screen-schedule" class="screen">
-    <div class="container-wide">
-      <div class="schedule-header">
-        <div>
-          <button class="back-btn" onclick="showScreen('screen-config')" style="margin-bottom:0.4rem;">
-            ← Back
-          </button>
-          <h2><span class="gradient-text">Your Service Schedule</span></h2>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">
-          ⬇ Export CSV
-        </button>
-      </div>
-
-      <div class="schedule-stats" id="schedule-stats"></div>
-
-      <div id="overdue-banner" class="overdue-banner">
-        <span class="overdue-banner-icon">⚠️</span>
-        <div id="overdue-banner-text"></div>
-      </div>
-
-      <div id="trips-container"></div>
+<!-- ═══════════════════════════════════════════
+     SCREEN 4: GEOCODING
+════════════════════════════════════════════ -->
+<div id="screen-geo" class="screen">
+  <div class="container">
+    <div class="glass-card geo-box">
+      <div class="geo-spinner"></div>
+      <h3>Locaties opzoeken...</h3>
+      <p style="color:var(--text-muted);font-size:0.88rem;margin-top:0.4rem;">Coördinaten ophalen via OpenStreetMap</p>
+      <div class="progress-outer"><div class="progress-inner" id="geo-progress" style="width:0%"></div></div>
+      <p id="geo-label">Wachten...</p>
+      <p id="geo-cache-note"></p>
     </div>
   </div>
+</div>
 
-  <script>
-  // ════════════════════════════════════════════════
-  //  STATE
-  // ════════════════════════════════════════════════
-  const AppState = {
-    headers: [],
-    rawRows: [],
-    sheetName: '',
-    mapping: { name: null, contact: null, address: null, lastService: null, postalCode: null, deviceType: null },
-    config: { startDate: null, workingDays: [1,2,3,4,5], maxPerDay: 0 },
-    customers: [],
-    schedule: [],
+<!-- ═══════════════════════════════════════════
+     SCREEN 5: SCHEDULE
+════════════════════════════════════════════ -->
+<div id="screen-schedule" class="screen">
+  <div class="container-wide">
+    <div class="schedule-header">
+      <div>
+        <button class="back-btn" onclick="showScreen('screen-config')" style="margin-bottom:0.4rem;">← Terug</button>
+        <h2><span class="gradient-text">Jouw Serviceplanning</span></h2>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearGeoCache()" title="Verwijder gecachte coördinaten en herhaal geocodering">↺ Cache wissen</button>
+      </div>
+    </div>
+    <div class="schedule-stats" id="schedule-stats"></div>
+    <div id="overdue-banner" class="overdue-banner">
+      <span style="font-size:1.1rem;flex-shrink:0;">⚠️</span>
+      <div id="overdue-banner-text"></div>
+    </div>
+    <div id="trips-container"></div>
+    <div id="unscheduled-section"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+const AppState = {
+  // raw data
+  headers:[], rawRows:[], rawRowsWithDates:[], headerIndices:[], sheetName:'',
+  mapping:{ name:null, contact:null, address:null, lastService:null, postalCode:null, deviceType:null },
+  customers:[],   // one row per device
+  visits:[],      // one entry per unique customer location (devices grouped)
+
+  config:{
+    homeLocation:'Boerakker, Netherlands',
+    workStart:480,  // minutes from midnight (08:00)
+    workEnd:1020,   // minutes from midnight (17:00)
+    setupMin:10, deviceMin:20,
+    startDate:null, workingDays:[1,2,3,4,5],
+  },
+
+  homeCoords:null,   // {lat,lon}
+  coords:{},         // normalizedCode → {lat,lon}
+  schedule:[],       // array of day objects
+  unscheduled:[],    // visits with no coords
+};
+
+const MAPPING_FIELDS = [
+  { key:'name',        label:'Klantnaam',          hint:'Volledige naam of bedrijf',           required:true  },
+  { key:'lastService', label:'Laatste keurdatum',  hint:'Vervaldatum = dit + 1 jaar',          required:true  },
+  { key:'postalCode',  label:'Postcode',           hint:'Aparte postcode-kolom (voorkeur)',     required:false },
+  { key:'address',     label:'Adres',              hint:'Straat + huisnummer',                 required:false },
+  { key:'contact',     label:'Telefoonnummer',     hint:'Telefoon of e-mail',                  required:false },
+  { key:'deviceType',  label:'Type apparaat',      hint:'Bijv. plafondlift, tillift…',         required:false },
+];
+
+// ════════════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ════════════════════════════════════════════════════════
+//  SCREEN 1 – UPLOAD
+// ════════════════════════════════════════════════════════
+function initUpload() {
+  const zone = document.getElementById('drop-zone');
+  const input = document.getElementById('file-input');
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+  input.addEventListener('change', () => { if(input.files[0]) handleFile(input.files[0]); });
+}
+
+function handleFile(file) {
+  const errEl = document.getElementById('upload-error');
+  errEl.classList.remove('visible');
+  if(!/\.(xlsx|xls)$/i.test(file.name)) { errEl.textContent='Kies een Excel-bestand (.xlsx of .xls).'; errEl.classList.add('visible'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const buf = new Uint8Array(e.target.result);
+      const wb  = XLSX.read(buf, { type:'array', cellDates:true });
+      const wb2 = XLSX.read(buf, { type:'array', cellDates:true });
+      const sn  = wb.SheetNames[0];
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[sn],  { header:1, raw:false, dateNF:'yyyy-mm-dd' });
+      const rwd  = XLSX.utils.sheet_to_json(wb2.Sheets[sn], { header:1, raw:true  });
+      if(!rows || rows.length < 2) { errEl.textContent='Bestand lijkt leeg.'; errEl.classList.add('visible'); return; }
+      AppState.sheetName = sn;
+      AppState.headerIndices = (rows[0]||[]).map(h => String(h??'').trim());
+      AppState.headers       = AppState.headerIndices.filter(Boolean);
+      AppState.rawRows       = rows.slice(1);
+      AppState.rawRowsWithDates = rwd.slice(1);
+      initMappingScreen();
+      showScreen('screen-mapping');
+    } catch { errEl.textContent='Kon bestand niet lezen.'; errEl.classList.add('visible'); }
   };
+  reader.readAsArrayBuffer(file);
+}
 
-  const MAPPING_FIELDS = [
-    { key: 'name',        label: 'Customer Name',     hint: 'Full name or company',             required: true  },
-    { key: 'lastService', label: 'Last Service Date', hint: 'Next due date = this + 1 year',    required: true  },
-    { key: 'postalCode',  label: 'Postal Code',       hint: 'Separate postcode column (preferred)', required: false },
-    { key: 'address',     label: 'Address',           hint: 'Street + number (postcode optional)', required: false },
-    { key: 'contact',     label: 'Phone / Contact',   hint: 'Phone number or email',            required: false },
-    { key: 'deviceType',  label: 'Device Type',       hint: 'Type of equipment (optional)',     required: false },
-  ];
+// ════════════════════════════════════════════════════════
+//  SCREEN 2 – MAPPING
+// ════════════════════════════════════════════════════════
+function initMappingScreen() {
+  // Preview table
+  const table = document.getElementById('preview-table');
+  const hdrs  = AppState.headerIndices;
+  let html = '<thead><tr>'+hdrs.map(h=>`<th>${esc(h)}</th>`).join('')+'</tr></thead><tbody>';
+  AppState.rawRows.slice(0,3).forEach(row => {
+    html += '<tr>'+hdrs.map((_,i)=>`<td>${esc(String(row[i]??''))}</td>`).join('')+'</tr>';
+  });
+  table.innerHTML = html+'</tbody>';
+  document.getElementById('sheet-name-note').textContent =
+    `Blad: "${AppState.sheetName}" · ${AppState.rawRows.length} rijen gevonden.`;
 
-  // ════════════════════════════════════════════════
-  //  NAVIGATION
-  // ════════════════════════════════════════════════
-  function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    window.scrollTo(0, 0);
-  }
-
-  // ════════════════════════════════════════════════
-  //  SCREEN 1 – UPLOAD
-  // ════════════════════════════════════════════════
-  function initUpload() {
-    const zone = document.getElementById('drop-zone');
-    const input = document.getElementById('file-input');
-
-    zone.addEventListener('click', () => input.click());
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', e => {
-      e.preventDefault();
-      zone.classList.remove('drag-over');
-      const f = e.dataTransfer.files[0];
-      if (f) handleFile(f);
-    });
-    input.addEventListener('change', () => { if (input.files[0]) handleFile(input.files[0]); });
-  }
-
-  function handleFile(file) {
-    const errEl = document.getElementById('upload-error');
-    errEl.classList.remove('visible');
-
-    if (!/\.(xlsx|xls)$/i.test(file.name)) {
-      errEl.textContent = 'Please upload an Excel file (.xlsx or .xls).';
-      errEl.classList.add('visible');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array', cellDates: true });
-        const sheetName = wb.SheetNames[0];
-        const sheet = wb.Sheets[sheetName];
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
-
-        // Re-read with cellDates to get actual Date objects
-        const wb2 = XLSX.read(new Uint8Array(e.target.result), { type: 'array', cellDates: true });
-        const sheet2 = wb2.Sheets[wb2.SheetNames[0]];
-        const rowsWithDates = XLSX.utils.sheet_to_json(sheet2, { header: 1, raw: true });
-
-        if (!rows || rows.length < 2) {
-          errEl.textContent = 'The file appears to be empty or has no data rows.';
-          errEl.classList.add('visible');
-          return;
-        }
-
-        AppState.sheetName = sheetName;
-        AppState.headers = (rows[0] || []).map(h => String(h ?? '').trim()).filter(Boolean);
-        AppState.rawRows = rows.slice(1);
-        AppState.rawRowsWithDates = rowsWithDates.slice(1);
-        AppState.headerIndices = (rows[0] || []).map(h => String(h ?? '').trim());
-
-        initMappingScreen();
-        showScreen('screen-mapping');
-      } catch (err) {
-        errEl.textContent = 'Could not read the file. Make sure it is a valid Excel file.';
-        errEl.classList.add('visible');
-      }
-    };
-    reader.readAsArrayBuffer(file);
-  }
-
-  // ════════════════════════════════════════════════
-  //  SCREEN 2 – COLUMN MAPPING
-  // ════════════════════════════════════════════════
-  function initMappingScreen() {
-    renderPreviewTable();
-    renderMappingRows();
-    document.getElementById('sheet-name-note').textContent =
-      `Using sheet: "${AppState.sheetName}" · ${AppState.rawRows.length} data rows detected.`;
-  }
-
-  function renderPreviewTable() {
-    const table = document.getElementById('preview-table');
-    const allHeaders = AppState.headerIndices;
-    const previewRows = AppState.rawRows.slice(0, 3);
-
-    let html = '<thead><tr>' + allHeaders.map(h => `<th>${escapeHtml(h)}</th>`).join('') + '</tr></thead>';
-    html += '<tbody>';
-    previewRows.forEach(row => {
-      html += '<tr>' + allHeaders.map((_, i) => `<td>${escapeHtml(String(row[i] ?? ''))}</td>`).join('') + '</tr>';
-    });
-    html += '</tbody>';
-    table.innerHTML = html;
-  }
-
-  function renderMappingRows() {
-    const container = document.getElementById('mapping-rows');
-    // Use original column indices (headerIndices) so empty-header columns don't shift mapping
-    const options = AppState.headerIndices
-      .map((h, i) => h ? `<option value="${i}">${escapeHtml(h)}</option>` : '')
-      .join('');
-
-    container.innerHTML = MAPPING_FIELDS.map(f => `
-      <div class="mapping-row">
-        <div class="mapping-label">
-          ${f.label}
-          ${f.required ? '' : '<span class="badge badge-unknown" style="font-size:0.65rem;padding:0.1rem 0.45rem;vertical-align:middle;">optional</span>'}
-          <span>${f.hint}</span>
-        </div>
-        <select id="map-${f.key}">
-          <option value="">${f.required ? '-- select column --' : '-- not mapped --'}</option>
-          ${options}
-        </select>
+  // Mapping selects
+  const opts = AppState.headerIndices.map((h,i) => h ? `<option value="${i}">${esc(h)}</option>` : '').join('');
+  const container = document.getElementById('mapping-rows');
+  container.innerHTML = MAPPING_FIELDS.map(f => `
+    <div class="mapping-row">
+      <div class="mapping-label">
+        ${f.label}
+        ${f.required ? '' : '<span class="badge badge-unknown" style="font-size:0.65rem;padding:0.1rem 0.4rem;vertical-align:middle;">optioneel</span>'}
+        <span>${f.hint}</span>
       </div>
-    `).join('');
+      <select id="map-${f.key}">
+        <option value="">${f.required ? '-- kies kolom --' : '-- niet koppelen --'}</option>
+        ${opts}
+      </select>
+    </div>`).join('');
 
-    // Auto-detect common column names
-    autoDetectMappings();
-  }
+  // Auto-detect
+  const patterns = {
+    name:        [/^naam$|naam|name|klant|customer|bedrijf|company/i],
+    lastService: [/gekeurd|keuring|last.?service|laatste|vorige|prev/i],
+    postalCode:  [/^postcode$|postcode|postal|zipcode|zip/i],
+    address:     [/^adres$|adres|address|straat|street/i],
+    contact:     [/telefoonnummer|telefoon|phone|tel|mobiel|email|contact/i],
+    deviceType:  [/hulpmiddel|device|apparaat|type|equipment/i],
+  };
+  Object.entries(patterns).forEach(([key, pats]) => {
+    const idx = AppState.headerIndices.findIndex(h => pats.some(p => p.test(h)));
+    if(idx !== -1) { const sel = document.getElementById(`map-${key}`); if(sel) sel.value = String(idx); }
+  });
+}
 
-  function autoDetectMappings() {
-    const patterns = {
-      name:        [/^naam$|naam|name|klant|customer|bedrijf|company/i],
-      lastService: [/gekeurd|keuring|last.?service|laatste|vorige|prev/i],
-      postalCode:  [/^postcode$|postcode|postal|zipcode|zip/i],
-      address:     [/^adres$|adres|address|straat|street|locatie|location/i],
-      contact:     [/telefoonnummer|telefoon|phone|tel|mobiel|mobile|contact/i],
-      deviceType:  [/hulpmiddel|device|apparaat|type|equipment/i],
+function applyMapping() {
+  const errEl = document.getElementById('mapping-error');
+  errEl.classList.remove('visible');
+  const mapping = {};
+  const errors  = [];
+  MAPPING_FIELDS.forEach(f => {
+    const v = document.getElementById(`map-${f.key}`).value;
+    if(v === '') { if(f.required) errors.push(`"${f.label}" is verplicht.`); mapping[f.key]=null; }
+    else mapping[f.key] = parseInt(v,10);
+  });
+  if(errors.length) { errEl.textContent=errors.join(' '); errEl.classList.add('visible'); return; }
+  const nonNull = Object.values(mapping).filter(v=>v!==null);
+  if(new Set(nonNull).size !== nonNull.length) { errEl.textContent='Twee velden mogen niet dezelfde kolom gebruiken.'; errEl.classList.add('visible'); return; }
+  if(mapping.postalCode===null && mapping.address===null) { errEl.textContent='Koppel minimaal "Postcode" of "Adres" voor gebiedsgroepering.'; errEl.classList.add('visible'); return; }
+  AppState.mapping = mapping;
+  normalizeCustomers();
+  groupIntoVisits();
+  initConfigScreen();
+  showScreen('screen-config');
+}
+
+// ════════════════════════════════════════════════════════
+//  DATA – NORMALIZE & GROUP
+// ════════════════════════════════════════════════════════
+function normalizeCustomers() {
+  const { name, contact, address, lastService, postalCode:pcCol, deviceType } = AppState.mapping;
+  AppState.customers = AppState.rawRows.map((row, ri) => {
+    const dRow = AppState.rawRowsWithDates[ri] || [];
+    const customerName = String(row[name]??'').trim();
+    if(!customerName) return null;
+    const addrStr = address!==null ? String(row[address]??'').trim() : '';
+    const rawPc   = pcCol!==null ? String(row[pcCol]??'').trim() : null;
+    const pcFull  = rawPc ? rawPc.replace(/\s/g,'').toUpperCase() : null;
+    const pc4     = rawPc
+      ? (rawPc.match(/(\d{4})/) ? rawPc.match(/(\d{4})/)[1] : null)
+      : extractPostalCode(addrStr);
+    const lastSvc = parseDate(dRow[lastService] ?? row[lastService]);
+    return {
+      name: customerName,
+      contact:    contact!==null    ? String(row[contact]??'').trim() : '',
+      address:    addrStr,
+      deviceType: deviceType!==null ? String(row[deviceType]??'').trim() : '',
+      lastServiceDate: lastSvc,
+      nextDueDate:     lastSvc ? addOneYear(lastSvc) : null,
+      postalCode:  pc4,
+      postalCodeFull: pcFull,
     };
-    const headers = AppState.headerIndices;
-    Object.entries(patterns).forEach(([key, pats]) => {
-      const idx = headers.findIndex(h => pats.some(p => p.test(h)));
-      if (idx !== -1) {
-        const sel = document.getElementById(`map-${key}`);
-        if (sel) sel.value = String(idx);
-      }
-    });
-  }
+  }).filter(Boolean);
+}
 
-  function applyMapping() {
-    const errEl = document.getElementById('mapping-error');
-    errEl.classList.remove('visible');
-
-    const mapping = {};
-    let errors = [];
-
-    MAPPING_FIELDS.forEach(f => {
-      const val = document.getElementById(`map-${f.key}`).value;
-      if (val === '') {
-        if (f.required) errors.push(`"${f.label}" is required.`);
-        mapping[f.key] = null;
-      } else {
-        mapping[f.key] = parseInt(val, 10);
-      }
-    });
-
-    if (errors.length) {
-      errEl.textContent = errors.join(' ');
-      errEl.classList.add('visible');
-      return;
+function groupIntoVisits() {
+  // Group rows by (name + postalCodeFull-or-pc4) → one "visit" per unique customer location
+  const map = new Map();
+  AppState.customers.forEach(c => {
+    const key = c.name.toLowerCase()+'|'+(c.postalCodeFull||c.postalCode||c.address||'').toLowerCase();
+    if(!map.has(key)) {
+      map.set(key, {
+        name: c.name, contact: c.contact, address: c.address,
+        postalCode: c.postalCode, postalCodeFull: c.postalCodeFull,
+        devices: [],
+        nextDueDate: null,   // will be min across devices
+      });
     }
-
-    // Check for duplicates among mapped (non-null) fields
-    const indices = Object.values(mapping).filter(v => v !== null);
-    const unique = new Set(indices);
-    if (unique.size !== indices.length) {
-      errEl.textContent = 'Two fields cannot be mapped to the same column.';
-      errEl.classList.add('visible');
-      return;
+    const v = map.get(key);
+    v.devices.push({ deviceType: c.deviceType, lastServiceDate: c.lastServiceDate, nextDueDate: c.nextDueDate });
+    // contact / address: prefer first non-empty
+    if(!v.contact && c.contact) v.contact = c.contact;
+    if(!v.address && c.address)  v.address = c.address;
+    // urgency = earliest due date
+    if(c.nextDueDate) {
+      if(!v.nextDueDate || c.nextDueDate < v.nextDueDate) v.nextDueDate = c.nextDueDate;
     }
+  });
+  AppState.visits = [...map.values()];
+}
 
-    // Warn if neither postal code nor address is mapped
-    if (mapping.postalCode === null && mapping.address === null) {
-      errEl.textContent = 'Please map at least one of "Postal Code" or "Address" so customers can be grouped by area.';
-      errEl.classList.add('visible');
-      return;
-    }
+function extractPostalCode(addr) {
+  if(!addr) return null;
+  const m = addr.match(/\b(\d{4})\s?[A-Za-z]{2}\b/);
+  if(m) return m[1];
+  const m2 = addr.match(/\b(\d{4})\b/);
+  if(m2) { const n=parseInt(m2[1],10); if(n>=1000&&n<=9999) return m2[1]; }
+  return null;
+}
+function parseDate(val) {
+  if(val instanceof Date) return isNaN(val.getTime())?null:val;
+  if(val===null||val===undefined||val==='') return null;
+  if(typeof val==='number') { const p=XLSX.SSF.parse_date_code(val); return p?new Date(p.y,p.m-1,p.d):null; }
+  const s=String(val).trim(); if(!s) return null;
+  const du=s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if(du) { const d=new Date(`${du[3]}-${du[2].padStart(2,'0')}-${du[1].padStart(2,'0')}`); if(!isNaN(d.getTime())) return d; }
+  const d=new Date(s); return isNaN(d.getTime())?null:d;
+}
+function addOneYear(d) { const r=new Date(d); r.setFullYear(r.getFullYear()+1); return r; }
 
-    AppState.mapping = mapping;
-    normalizeCustomers();
-    initConfigScreen();
-    showScreen('screen-config');
-  }
+// ════════════════════════════════════════════════════════
+//  SCREEN 3 – CONFIG
+// ════════════════════════════════════════════════════════
+function initConfigScreen() {
+  document.getElementById('start-date').value = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('.day-toggle').forEach(btn => {
+    // Remove stale listeners by replacing the element (cheap clone trick)
+    const clone = btn.cloneNode(true);
+    btn.parentNode.replaceChild(clone, btn);
+    clone.addEventListener('click', () => clone.classList.toggle('active'));
+  });
+}
 
-  // ════════════════════════════════════════════════
-  //  DATA NORMALISATION
-  // ════════════════════════════════════════════════
-  function normalizeCustomers() {
-    const { name, contact, address, lastService, postalCode: pcCol, deviceType } = AppState.mapping;
+function readConfig() {
+  const startVal = document.getElementById('start-date').value;
+  const wsStr    = document.getElementById('work-start').value;
+  const weStr    = document.getElementById('work-end').value;
+  const [wsh,wsm] = wsStr.split(':').map(Number);
+  const [weh,wem] = weStr.split(':').map(Number);
+  return {
+    homeLocation: document.getElementById('home-location').value.trim() || 'Boerakker, Netherlands',
+    workStart: wsh*60+wsm,
+    workEnd:   weh*60+wem,
+    setupMin:  parseInt(document.getElementById('st-setup').value,10)  || 10,
+    deviceMin: parseInt(document.getElementById('st-device').value,10) || 20,
+    startDate: startVal ? new Date(startVal+'T00:00:00') : new Date(),
+    workingDays: Array.from(document.querySelectorAll('.day-toggle.active')).map(b=>parseInt(b.dataset.day,10)),
+  };
+}
 
-    AppState.customers = AppState.rawRows
-      .map((row, rowIdx) => {
-        const datesRow = AppState.rawRowsWithDates[rowIdx] || [];
-        const customerName = String(row[name] ?? '').trim();
-        if (!customerName) return null;
-
-        const addressStr = address !== null ? String(row[address] ?? '').trim() : '';
-        const lastServiceDate = parseDate(datesRow[lastService] ?? row[lastService]);
-        const nextDueDate = lastServiceDate ? addOneYear(lastServiceDate) : null;
-
-        // Use dedicated postal code column if mapped; otherwise extract from address
-        const rawPostal = pcCol !== null ? String(row[pcCol] ?? '').trim() : null;
-        const postalCode = rawPostal
-          ? (rawPostal.match(/\d{4}/) ? rawPostal.match(/(\d{4})/)[1] : null)
-          : extractPostalCode(addressStr);
-
-        return {
-          name: customerName,
-          contact: contact !== null ? String(row[contact] ?? '').trim() : '',
-          address: addressStr,
-          deviceType: deviceType !== null ? String(row[deviceType] ?? '').trim() : '',
-          lastServiceDate,
-          nextDueDate,
-          postalCode,
-        };
-      })
-      .filter(Boolean);
-  }
-
-  function addOneYear(date) {
-    const d = new Date(date);
-    d.setFullYear(d.getFullYear() + 1);
-    return d;
-  }
-
-  function extractPostalCode(addr) {
-    if (!addr) return null;
-    // Dutch format: 4 digits + optional space + 2 uppercase letters
-    const m = addr.match(/\b(\d{4})\s?[A-Za-z]{2}\b/);
-    if (m) return m[1];
-    // Fallback: bare 4-digit sequence in postal range 1000-9999
-    const m2 = addr.match(/\b(\d{4})\b/);
-    if (m2) {
-      const n = parseInt(m2[1], 10);
-      if (n >= 1000 && n <= 9999) return m2[1];
-    }
-    return null;
-  }
-
-  function parseDate(val) {
-    if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
-    if (val === null || val === undefined || val === '') return null;
-    if (typeof val === 'number') {
-      // Excel serial number
-      const parsed = XLSX.SSF.parse_date_code(val);
-      if (parsed) return new Date(parsed.y, parsed.m - 1, parsed.d);
-      return null;
-    }
-    const s = String(val).trim();
-    if (!s) return null;
-
-    // Dutch dd-mm-yyyy or dd/mm/yyyy
-    const dutch = s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
-    if (dutch) {
-      const d = new Date(`${dutch[3]}-${dutch[2].padStart(2,'0')}-${dutch[1].padStart(2,'0')}`);
-      if (!isNaN(d.getTime())) return d;
-    }
-    // ISO or other formats
-    const d = new Date(s);
-    return isNaN(d.getTime()) ? null : d;
-  }
-
-  // ════════════════════════════════════════════════
-  //  SCREEN 3 – CONFIGURATION
-  // ════════════════════════════════════════════════
-  function initConfigScreen() {
-    const today = new Date();
-    document.getElementById('start-date').value = today.toISOString().split('T')[0];
-
-    document.querySelectorAll('.day-toggle').forEach(btn => {
-      btn.addEventListener('click', () => btn.classList.toggle('active'));
-    });
-  }
-
-  function getSelectedWorkingDays() {
-    return Array.from(document.querySelectorAll('.day-toggle.active'))
-      .map(b => parseInt(b.dataset.day, 10));
-  }
-
-  function generateSchedule() {
-    const errEl = document.getElementById('config-error');
-    errEl.classList.remove('visible');
-
-    const startVal = document.getElementById('start-date').value;
-    if (!startVal) {
-      errEl.textContent = 'Please select a start date.';
-      errEl.classList.add('visible');
-      return;
-    }
-    const workingDays = getSelectedWorkingDays();
-    if (workingDays.length === 0) {
-      errEl.textContent = 'Please select at least one working day.';
-      errEl.classList.add('visible');
-      return;
-    }
-
-    AppState.config.startDate = new Date(startVal + 'T00:00:00');
-    AppState.config.workingDays = workingDays;
-    AppState.config.maxPerDay = parseInt(document.getElementById('max-per-day').value, 10) || 0;
-
+async function startGeocoding() {
+  const errEl = document.getElementById('config-error');
+  errEl.classList.remove('visible');
+  const cfg = readConfig();
+  if(!cfg.homeLocation) { errEl.textContent='Voer een vertreklocatie in.'; errEl.classList.add('visible'); return; }
+  if(cfg.workEnd <= cfg.workStart) { errEl.textContent='Eindtijd moet na starttijd zijn.'; errEl.classList.add('visible'); return; }
+  if(cfg.workingDays.length===0) { errEl.textContent='Selecteer minimaal één werkdag.'; errEl.classList.add('visible'); return; }
+  AppState.config = cfg;
+  showScreen('screen-geo');
+  try {
+    await geocodeAll();
     buildSchedule();
     renderSchedule();
     showScreen('screen-schedule');
+  } catch(e) {
+    showScreen('screen-config');
+    errEl.textContent = 'Fout bij ophalen locaties: '+e.message;
+    errEl.classList.add('visible');
   }
+}
 
-  // ════════════════════════════════════════════════
-  //  SCHEDULING ALGORITHM
-  // ════════════════════════════════════════════════
-  function buildSchedule() {
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const maxPerDay = AppState.config.maxPerDay; // 0 = no limit
+// ════════════════════════════════════════════════════════
+//  SCREEN 4 – GEOCODING
+// ════════════════════════════════════════════════════════
+const GEO_CACHE_KEY = 'ss_geo_v2';
 
-    // Group by postal code
-    const groups = {};
-    AppState.customers.forEach(c => {
-      const key = c.postalCode ?? 'UNKNOWN';
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(c);
-    });
+function getGeoCache() { try { return JSON.parse(localStorage.getItem(GEO_CACHE_KEY)||'{}'); } catch { return {}; } }
+function saveGeoCache(c) { try { localStorage.setItem(GEO_CACHE_KEY,JSON.stringify(c)); } catch {} }
+function clearGeoCache() {
+  localStorage.removeItem(GEO_CACHE_KEY);
+  alert('Geocache geleegd. Genereer de planning opnieuw om coördinaten opnieuw op te halen.');
+}
 
-    // Compute urgency per group
-    const groupList = Object.entries(groups).map(([postalCode, members]) => {
-      const dates = members.map(m => m.nextDueDate).filter(d => d instanceof Date && !isNaN(d.getTime()));
-      const urgency = dates.length ? new Date(Math.min(...dates)) : null;
-      const isOverdue = urgency !== null && urgency < today;
-      return { postalCode, members, urgency, isOverdue };
-    });
+function updateGeoProgress(done, total, label) {
+  const pct = total>0 ? Math.round(done/total*100) : 0;
+  document.getElementById('geo-progress').style.width = pct+'%';
+  document.getElementById('geo-label').textContent = total>0 ? `${done} / ${total} — ${label}` : label;
+}
 
-    // Sort: null urgency last, then ascending by urgency date
-    groupList.sort((a, b) => {
-      if (a.urgency === null && b.urgency === null) return 0;
-      if (a.urgency === null) return 1;
-      if (b.urgency === null) return -1;
-      return a.urgency - b.urgency;
-    });
+async function geocodeAll() {
+  const cache = getGeoCache();
+  const cfg   = AppState.config;
 
-    // Split groups that exceed maxPerDay into chunks
-    const chunks = [];
-    groupList.forEach(group => {
-      if (maxPerDay && group.members.length > maxPerDay) {
-        for (let i = 0; i < group.members.length; i += maxPerDay) {
-          chunks.push({ ...group, members: group.members.slice(i, i + maxPerDay) });
-        }
-      } else {
-        chunks.push(group);
-      }
-    });
+  // Collect what needs geocoding
+  const tasks = [];
+  const homeKey = cfg.homeLocation;
+  if(!cache[homeKey]) tasks.push({ key:homeKey, query:homeKey, isHome:true });
 
-    // Assign chunks to working days, packing multiple chunks per day when cap allows
-    const dateSeq = generateWorkingDates(AppState.config.startDate, chunks.length + 365, AppState.config.workingDays);
-    const trips = [];
-    let dayIdx = 0;
-    let dayCount = 0;
+  const uniqueCodes = [...new Set(AppState.visits.map(v=>v.postalCodeFull||v.postalCode).filter(Boolean))];
+  uniqueCodes.forEach(code => { if(!cache[code]) tasks.push({ key:code, query:code, isHome:false }); });
 
-    chunks.forEach(chunk => {
-      if (maxPerDay && dayCount > 0 && dayCount + chunk.members.length > maxPerDay) {
-        dayIdx++;
-        dayCount = 0;
-      }
-      trips.push({
-        date: dateSeq[dayIdx],
-        postalCode: chunk.postalCode,
-        members: chunk.members,
-        urgency: chunk.urgency,
-        isOverdue: chunk.isOverdue,
-      });
-      dayCount += chunk.members.length;
-      // Without a cap, each chunk gets its own day
-      if (!maxPerDay) { dayIdx++; dayCount = 0; }
-    });
+  const total = tasks.length;
+  const cached = (Object.keys(cache).length > 0 ? ' (overige uit cache)' : '');
+  document.getElementById('geo-cache-note').textContent =
+    total===0 ? 'Alle locaties al in cache ✓' : `${tasks.length} op te zoeken${cached}`;
 
-    AppState.schedule = trips;
+  for(let i=0; i<tasks.length; i++) {
+    const t = tasks[i];
+    updateGeoProgress(i, total, t.key);
+    try {
+      const url = t.isHome
+        ? `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(t.query)}&format=json&limit=1&countrycodes=nl`
+        : `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(t.query)}&country=NL&format=json&limit=1`;
+      const res  = await fetch(url, { headers:{ 'Accept':'application/json','Accept-Language':'nl,en' }});
+      const data = await res.json();
+      if(data.length>0) cache[t.key] = { lat:parseFloat(data[0].lat), lon:parseFloat(data[0].lon) };
+    } catch { /* skip, stays uncached */ }
+    saveGeoCache(cache);
+    if(i < tasks.length-1) await sleep(1100); // Nominatim rate limit
   }
+  updateGeoProgress(total, total, 'Klaar!');
 
-  function generateWorkingDates(from, count, allowedDays) {
-    const dates = [];
-    const cursor = new Date(from);
-    cursor.setHours(0,0,0,0);
-    while (dates.length < count) {
-      if (allowedDays.includes(cursor.getDay())) {
-        dates.push(new Date(cursor));
-      }
-      cursor.setDate(cursor.getDate() + 1);
+  AppState.homeCoords = cache[homeKey] || null;
+  AppState.coords     = cache;
+
+  if(!AppState.homeCoords) throw new Error(`Kon "${cfg.homeLocation}" niet vinden. Controleer de locatienaam.`);
+}
+
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+// ════════════════════════════════════════════════════════
+//  ROUTE OPTIMISATION
+// ════════════════════════════════════════════════════════
+function haversine(a, b) {
+  const R=6371, φ1=a.lat*Math.PI/180, φ2=b.lat*Math.PI/180;
+  const Δφ=(b.lat-a.lat)*Math.PI/180, Δλ=(b.lon-a.lon)*Math.PI/180;
+  const x=Math.sin(Δφ/2)**2+Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+  return 2*R*Math.asin(Math.sqrt(x));
+}
+
+function travelMin(a, b) {
+  if(!a||!b) return 0;
+  const km = haversine(a,b);
+  // Adaptive road factor + speed for NL
+  let factor, speed;
+  if(km<15)       { factor=1.4; speed=40; }
+  else if(km<50)  { factor=1.3; speed=75; }
+  else            { factor=1.15; speed=105; }
+  return Math.max(3, Math.round(km*factor/speed*60));
+}
+
+function visitServiceMin(visit) {
+  const { setupMin, deviceMin } = AppState.config;
+  return setupMin + visit.devices.length * deviceMin;
+}
+
+function buildSchedule() {
+  const home    = AppState.homeCoords;
+  const budget  = AppState.config.workEnd - AppState.config.workStart;
+  const today   = new Date(); today.setHours(0,0,0,0);
+
+  // Attach coords + service time to each visit, sort by urgency
+  const visits = AppState.visits.map(v => {
+    const key = v.postalCodeFull || v.postalCode || '';
+    return { ...v, coords: AppState.coords[key]||null, serviceMin: visitServiceMin(v),
+      isOverdue: v.nextDueDate && v.nextDueDate<today };
+  }).sort((a,b) => {
+    if(!a.nextDueDate && !b.nextDueDate) return 0;
+    if(!a.nextDueDate) return 1; if(!b.nextDueDate) return -1;
+    return a.nextDueDate-b.nextDueDate;
+  });
+
+  const withCoords    = visits.filter(v=>v.coords);
+  AppState.unscheduled = visits.filter(v=>!v.coords).map(v=>({...v,skipReason:'Locatie niet gevonden'}));
+
+  const dateSeq = generateWorkingDates(AppState.config.startDate, 500, AppState.config.workingDays);
+  const days    = [];
+  const remaining = [...withCoords];
+  let dayIdx = 0;
+
+  while(remaining.length>0 && dayIdx<dateSeq.length) {
+    // Seed: most urgent visit
+    const seed = remaining[0];
+    const seedTravel = travelMin(home, seed.coords);
+    const seedReturn = travelMin(seed.coords, home);
+    if(seedTravel + seed.serviceMin + seedReturn > budget) {
+      AppState.unscheduled.push({ ...remaining.splice(0,1)[0], skipReason:'Te ver voor een dagrit' });
+      continue;
     }
-    return dates;
-  }
 
-  // ════════════════════════════════════════════════
-  //  SCREEN 4 – RENDER SCHEDULE
-  // ════════════════════════════════════════════════
-  function getCustomerStatus(dueDate) {
-    if (!dueDate || isNaN(dueDate.getTime())) return 'unknown';
-    const today = new Date(); today.setHours(0,0,0,0);
-    if (dueDate < today) return 'overdue';
-    const diff = dueDate - today;
-    if (diff <= 7 * 86400000) return 'due-soon';
-    return 'ok';
-  }
+    const stops   = [];
+    let used      = seedTravel + seed.serviceMin;
+    let pos       = seed.coords;
+    remaining.splice(0,1);
+    stops.push({ visit:seed, travelMin:seedTravel });
 
-  function renderSchedule() {
-    const today = new Date(); today.setHours(0,0,0,0);
-    const schedule = AppState.schedule;
-
-    // Stats
-    const totalCustomers = AppState.customers.length;
-    const overdueGroups = schedule.filter(t => t.isOverdue);
-    const statsEl = document.getElementById('schedule-stats');
-    statsEl.innerHTML = [
-      `<span class="stat-chip"><strong>${totalCustomers}</strong> customers</span>`,
-      `<span class="stat-chip"><strong>${schedule.length}</strong> trips</span>`,
-      overdueGroups.length
-        ? `<span class="stat-chip" style="border-color:rgba(239,68,68,0.4);"><strong style="color:#fca5a5;">${overdueGroups.length}</strong> area${overdueGroups.length>1?'s':''} overdue</span>`
-        : `<span class="stat-chip" style="border-color:rgba(34,197,94,0.3);">All on schedule ✓</span>`,
-    ].join('');
-
-    // Overdue banner
-    const bannerEl = document.getElementById('overdue-banner');
-    const bannerText = document.getElementById('overdue-banner-text');
-    if (overdueGroups.length) {
-      const areas = overdueGroups.map(g => g.postalCode).join(', ');
-      bannerText.innerHTML = `<strong>Overdue areas:</strong> ${escapeHtml(areas)}<br>
-        These customers are past their service due date and should be prioritised.`;
-      bannerEl.classList.add('visible');
-    } else {
-      bannerEl.classList.remove('visible');
+    let improved = true;
+    while(improved && remaining.length>0) {
+      improved = false;
+      let bestIdx=-1, bestTravel=Infinity;
+      for(let i=0;i<remaining.length;i++) {
+        const v=remaining[i];
+        const travel=travelMin(pos,v.coords);
+        const ret=travelMin(v.coords,home);
+        if(used+travel+v.serviceMin+ret<=budget && travel<bestTravel) { bestTravel=travel; bestIdx=i; }
+      }
+      if(bestIdx!==-1) {
+        const v=remaining.splice(bestIdx,1)[0];
+        used += bestTravel + v.serviceMin;
+        stops.push({ visit:v, travelMin:bestTravel });
+        pos=v.coords;
+        improved=true;
+      }
     }
 
-    // Trip cards
-    const container = document.getElementById('trips-container');
-    container.innerHTML = '';
+    const returnMin = travelMin(pos, home);
+    days.push({ date:dateSeq[dayIdx], stops, returnMin, totalMin:used+returnMin });
+    dayIdx++;
+  }
 
-    schedule.forEach(trip => {
-      const card = document.createElement('div');
-      card.className = 'trip-card';
+  AppState.schedule = days;
+}
 
-      // Determine worst status in trip for border color
-      const statuses = trip.members.map(m => getCustomerStatus(m.nextDueDate));
-      if (trip.isOverdue || statuses.includes('overdue')) card.classList.add('is-overdue');
-      else if (statuses.includes('due-soon')) card.classList.add('has-due-soon');
-      else if (statuses.every(s => s === 'unknown')) card.classList.add('no-date');
+function generateWorkingDates(from, count, allowed) {
+  const dates=[], cur=new Date(from); cur.setHours(0,0,0,0);
+  while(dates.length<count) { if(allowed.includes(cur.getDay())) dates.push(new Date(cur)); cur.setDate(cur.getDate()+1); }
+  return dates;
+}
 
-      const dateLabel = trip.date
-        ? trip.date.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
-        : 'Unscheduled';
+// ════════════════════════════════════════════════════════
+//  SCREEN 5 – RENDER SCHEDULE
+// ════════════════════════════════════════════════════════
+function visitStatus(v) {
+  if(!v.nextDueDate||isNaN(v.nextDueDate.getTime())) return 'unknown';
+  const today=new Date(); today.setHours(0,0,0,0);
+  if(v.nextDueDate<today) return 'overdue';
+  if(v.nextDueDate-today<=30*86400000) return 'soon';
+  return 'ok';
+}
 
-      const areaLabel = trip.postalCode === 'UNKNOWN'
-        ? '<span class="badge badge-warning">No postal code</span>'
-        : `<span class="trip-area-badge">${escapeHtml(trip.postalCode)}XX</span>`;
+function renderSchedule() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const schedule = AppState.schedule;
+  const homeName = AppState.config.homeLocation.split(',')[0];
+  const workStart = AppState.config.workStart;
 
-      card.innerHTML = `
-        <div class="trip-header">
-          <span class="trip-date">${escapeHtml(dateLabel)}</span>
-          ${areaLabel}
-          <span class="trip-count">${trip.members.length} customer${trip.members.length !== 1 ? 's' : ''}</span>
+  // Stats
+  const totalVisits    = AppState.visits.length;
+  const scheduledCount = schedule.reduce((s,d)=>s+d.stops.length,0);
+  const overdueCount   = AppState.visits.filter(v=>v.isOverdue).length;
+  const statsEl = document.getElementById('schedule-stats');
+  statsEl.innerHTML = [
+    `<span class="stat-chip"><strong>${scheduledCount}</strong> klanten ingepland</span>`,
+    `<span class="stat-chip"><strong>${schedule.length}</strong> werkdagen</span>`,
+    AppState.unscheduled.length
+      ? `<span class="stat-chip" style="border-color:rgba(249,115,22,0.4);"><strong style="color:#fdba74;">${AppState.unscheduled.length}</strong> niet ingepland</span>`
+      : '',
+    overdueCount
+      ? `<span class="stat-chip" style="border-color:rgba(239,68,68,0.4);"><strong style="color:#fca5a5;">${overdueCount}</strong> achterstallig</span>`
+      : `<span class="stat-chip" style="border-color:rgba(34,197,94,0.3);">Alles op schema ✓</span>`,
+  ].join('');
+
+  // Overdue banner
+  const overdue = AppState.visits.filter(v=>v.isOverdue);
+  const bannerEl = document.getElementById('overdue-banner');
+  if(overdue.length) {
+    document.getElementById('overdue-banner-text').innerHTML =
+      `<strong>Achterstallig (${overdue.length}):</strong> ${overdue.map(v=>esc(v.name)).join(', ')}<br>Deze klanten zijn al over hun vervaldatum.`;
+    bannerEl.classList.add('visible');
+  } else {
+    bannerEl.classList.remove('visible');
+  }
+
+  // Day cards
+  const container = document.getElementById('trips-container');
+  container.innerHTML = '';
+
+  schedule.forEach(day => {
+    let clock = workStart;
+    const card = document.createElement('div');
+    card.className = 'day-card';
+
+    const totalCustomers = day.stops.length;
+    const totalDevices   = day.stops.reduce((s,st)=>s+st.visit.devices.length,0);
+    const h = Math.floor(day.totalMin/60), m = day.totalMin%60;
+    const durationStr = m>0 ? `${h}u ${m}min` : `${h}u`;
+    const returnTime  = formatTime(workStart + day.totalMin);
+    const dateLabel   = day.date.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+    let html = `
+      <div class="day-header">
+        <span class="day-date">${esc(dateLabel)}</span>
+        <div class="day-meta">
+          <span class="day-chip">${totalCustomers} klanten · ${totalDevices} apparaten</span>
+          <span class="day-chip">${durationStr}</span>
+          <span class="day-chip">thuis ~${returnTime}</span>
         </div>
-        <div class="customer-list">
-          ${trip.members.map(m => {
-            const status = getCustomerStatus(m.nextDueDate);
-            const badgeClass = { overdue:'badge-overdue', 'due-soon':'badge-due-soon', ok:'badge-ok', unknown:'badge-unknown' }[status];
-            const badgeText = {
-              overdue: m.nextDueDate ? `Overdue ${formatDateShort(m.nextDueDate)}` : 'Overdue',
-              'due-soon': `Due ${formatDateShort(m.nextDueDate)}`,
-              ok: `Due ${formatDateShort(m.nextDueDate)}`,
-              unknown: 'No date',
-            }[status];
-            const contactHtml = m.contact
-              ? (m.contact.match(/^\+?[\d\s\-().]{6,}$/)
-                  ? `<a href="tel:${escapeHtml(m.contact.replace(/\s/g,''))}">${escapeHtml(m.contact)}</a>`
-                  : escapeHtml(m.contact))
-              : '<span style="opacity:0.4;">—</span>';
-            const deviceHtml = m.deviceType
-              ? `<span style="color:var(--text-muted);font-size:0.8rem;flex:1;min-width:120px;">${escapeHtml(m.deviceType)}</span>`
-              : '';
-            return `
-              <div class="customer-row">
-                <span class="customer-name">${escapeHtml(m.name)}</span>
-                ${deviceHtml}
-                <span class="customer-contact">${contactHtml}</span>
-                <span class="customer-due"><span class="badge ${badgeClass}">${badgeText}</span></span>
-              </div>`;
-          }).join('')}
+      </div>
+      <div class="timeline">`;
+
+    // Departure row
+    html += tlRow(formatTime(clock), 'home', `<span class="tl-home-label">Vertrek ${esc(homeName)}</span>`, true);
+
+    day.stops.forEach((stop, idx) => {
+      clock += stop.travelMin;
+      const v      = stop.visit;
+      const status = visitStatus(v);
+      const dotCls = { ok:'tl-dot-ok', soon:'tl-dot-soon', overdue:'tl-dot-overdue', unknown:'tl-dot-unknown' }[status];
+      const cardCls= { ok:'status-ok', soon:'status-soon', overdue:'status-overdue', unknown:'status-unknown' }[status];
+      const badge  = { ok:'', soon:`<span class="badge badge-soon">Binnenkort</span>`, overdue:`<span class="badge badge-overdue">Achterstallig</span>`, unknown:'' }[status];
+      const doneTime = formatTime(clock + v.serviceMin);
+      const devNames = v.devices.map(d=>d.deviceType||'onbekend apparaat').join('  ·  ');
+      const nDev     = v.devices.length;
+      const svcLabel = `${v.serviceMin} min (${nDev}× apparaat + opstart) · klaar ${doneTime}`;
+      const contactHtml = v.contact
+        ? (v.contact.match(/^\+?[\d\s\-(). ]{6,}$/)
+            ? `<a href="tel:${v.contact.replace(/\s/g,'')}">${esc(v.contact)}</a>`
+            : esc(v.contact))
+        : '';
+
+      const bodyHtml = `
+        <div class="tl-drive">↓ ${stop.travelMin} min rijden</div>
+        <div class="tl-card ${cardCls}">
+          <div class="tl-name">${esc(v.name)} ${badge}</div>
+          ${v.address ? `<div class="tl-address">${esc(v.address)}${v.postalCode?', '+esc(v.postalCodeFull||v.postalCode):''}</div>` : ''}
+          ${devNames ? `<div class="tl-devices">${esc(devNames)}</div>` : ''}
+          <div class="tl-footer">
+            <span class="tl-contact">${contactHtml}</span>
+            <span class="tl-duration">${svcLabel}</span>
+          </div>
         </div>`;
 
-      container.appendChild(card);
-    });
-  }
-
-  // ════════════════════════════════════════════════
-  //  CSV EXPORT
-  // ════════════════════════════════════════════════
-  function exportCSV() {
-    const header = ['Trip Date','Postal Area','Customer Name','Device Type','Contact','Address','Last Service Date','Next Due Date','Status'];
-    const rows = [];
-    AppState.schedule.forEach(trip => {
-      trip.members.forEach(m => {
-        rows.push([
-          trip.date ? trip.date.toISOString().split('T')[0] : '',
-          trip.postalCode ?? '',
-          m.name,
-          m.deviceType ?? '',
-          m.contact,
-          m.address,
-          m.lastServiceDate ? m.lastServiceDate.toISOString().split('T')[0] : '',
-          m.nextDueDate ? m.nextDueDate.toISOString().split('T')[0] : '',
-          getCustomerStatus(m.nextDueDate),
-        ]);
-      });
+      html += tlRow(formatTime(clock), dotCls, bodyHtml, idx < day.stops.length-1 || true);
+      clock += v.serviceMin;
     });
 
-    const csv = [header, ...rows]
-      .map(row => row.map(cell => {
-        const s = String(cell ?? '');
-        return (s.includes(',') || s.includes('"') || s.includes('\n'))
-          ? '"' + s.replace(/"/g, '""') + '"'
-          : s;
-      }).join(','))
-      .join('\r\n');
+    // Return home
+    html += tlRow('', 'home', `<div class="tl-drive">↓ ${day.returnMin} min rijden</div>`, false);
+    html += tlRow(formatTime(clock + day.returnMin), 'home', `<span class="tl-home-label">Terug in ${esc(homeName)} ✓</span>`, false);
 
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'service-schedule.csv'; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
-
-  // ════════════════════════════════════════════════
-  //  UTILS
-  // ════════════════════════════════════════════════
-  function formatDateShort(d) {
-    if (!d || isNaN(d.getTime())) return '';
-    return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-  }
-
-  function escapeHtml(str) {
-    return String(str ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
-  // ════════════════════════════════════════════════
-  //  INIT
-  // ════════════════════════════════════════════════
-  document.addEventListener('DOMContentLoaded', () => {
-    initUpload();
-    showScreen('screen-upload');
+    html += '</div>'; // .timeline
+    card.innerHTML = html;
+    container.appendChild(card);
   });
-  </script>
+
+  // Unscheduled
+  const unsEl = document.getElementById('unscheduled-section');
+  if(AppState.unscheduled.length) {
+    let html = `<div class="unscheduled-section glass-card"><h3>Niet ingepland (${AppState.unscheduled.length})</h3>`;
+    AppState.unscheduled.forEach(v => {
+      html += `<div class="unsched-row">
+        <span style="flex:1;font-weight:500;">${esc(v.name)}</span>
+        <span style="color:var(--text-muted);font-size:0.82rem;">${esc(v.skipReason||'Onbekende reden')}</span>
+        ${v.postalCode ? `<span class="badge badge-warn">${esc(v.postalCodeFull||v.postalCode)}</span>` : ''}
+      </div>`;
+    });
+    unsEl.innerHTML = html+'</div>';
+  } else {
+    unsEl.innerHTML = '';
+  }
+}
+
+function tlRow(time, dotClass, bodyHtml, hasLine) {
+  return `<div class="tl-row">
+    <div class="tl-time">${time}</div>
+    <div class="tl-spine">
+      <div class="tl-dot ${dotClass}"></div>
+      ${hasLine ? '<div class="tl-line"></div>' : ''}
+    </div>
+    <div class="tl-body">${bodyHtml}</div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════
+//  CSV EXPORT
+// ════════════════════════════════════════════════════════
+function exportCSV() {
+  const hdr = ['Datum','Klantnaam','Apparaten','Postcode','Adres','Telefoonnummer','Vervaldatum','Status','Reistijd (min)','Servicetijd (min)'];
+  const rows = [];
+  AppState.schedule.forEach(day => {
+    day.stops.forEach(stop => {
+      const v = stop.visit;
+      rows.push([
+        day.date.toISOString().split('T')[0],
+        v.name,
+        v.devices.map(d=>d.deviceType||'').join('; '),
+        v.postalCodeFull||v.postalCode||'',
+        v.address||'',
+        v.contact||'',
+        v.nextDueDate ? v.nextDueDate.toISOString().split('T')[0] : '',
+        visitStatus(v),
+        stop.travelMin,
+        v.serviceMin,
+      ]);
+    });
+  });
+  const csv = [hdr,...rows].map(r=>r.map(c=>{
+    const s=String(c??'');
+    return (s.includes(',')||s.includes('"')||s.includes('\n')) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  }).join(',')).join('\r\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='serviceplanning.csv'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+// ════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════
+function formatTime(min) {
+  const h=Math.floor(min/60), m=min%60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+function esc(str) {
+  return String(str??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  initUpload();
+  showScreen('screen-upload');
+});
+</script>
 </body>
 </html>
