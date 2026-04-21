@@ -21,11 +21,26 @@ start "" "Games/set.html"
 
 - `Games/` — Browser-based games. Currently contains `set.html`, a two-player SET card game.
 - `Main/` — Main project area (currently empty).
-- `Utility/` — Non-game automation and config. Contains the Workum wind forecast skill, its config reference, and the Service Scheduler.
+- `Utility/` — Non-game automation and config. Contains the Workum wind forecast skill, the Electricity payment skill, and the Service Scheduler.
 
 ## Utility/workum-wind
 
 Automated Monday wind forecast for Workum (IJsselmeer, NL). Uses the `/workum-wind` skill. Config and full reference (location, wind filters, calendar IDs, API URL) live in `Utility/workum-wind-config.md`. The scheduled trigger ID is `trig_012qMtXoRFMgBgh59prpDGpv` (runs 08:00 Amsterdam / 06:00 UTC every Monday). A 2-day pre-check trigger is auto-created for each calendar event to re-validate conditions.
+
+## Utility/electricity
+
+Monthly electricity payment calculator for the rental. Uses the `/electricity` skill.
+
+- **Skill source:** `Utility/electricity/skill-src/electricity/SKILL.md` (edit here)
+- **Installable package:** `Utility/electricity.skill` (rebuilt from skill-src via `zip -r`)
+- **State:** `Utility/electricity/electricity-state.json` — full reading history, baseline, landlord payment details
+- **Reports archive:** `Utility/electricity/reports/YYYY-MM.md` (+ optional `.png` for screenshots)
+- **Config reference:** `Utility/electricity/electricity-config.md`
+
+### How it works
+Landlord sends a monthly email (pasted text or screenshot) with the average €/kWh price. User pastes the report and gives the current meter reading. Skill extracts the rate, computes `(current − previous) × €/kWh`, stores the new reading, and reports the amount owed. First run is a bootstrap — just captures the baseline reading with no payment due.
+
+No scheduled trigger — fully manual.
 
 ## Utility/service-scheduler.html
 

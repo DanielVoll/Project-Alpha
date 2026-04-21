@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "currency": "EUR",
+  "price_formula": "levering_plus_belasting",
+  "landlord_name": "Pieter Blom",
+  "landlord_payment_details": null,
+  "readings": [
+    {
+      "date": "2026-03-06",
+      "period_month": null,
+      "reading_kwh": 2686.0,
+      "kwh_used": null,
+      "price_per_kwh_eur": null,
+      "amount_owed_eur": null,
+      "tariffs": null,
+      "household_totals": null,
+      "gmail_thread_id": null,
+      "paid": true,
+      "paid_on": null,
+      "notes": "Baseline reading retroactively entered on 2026-04-20. No payment due for this entry."
+    },
+    {
+      "date": "2026-04-20",
+      "period_month": "2026-03",
+      "reading_kwh": 3857.06,
+      "kwh_used": 1171.06,
+      "price_per_kwh_eur": 0.266043,
+      "amount_owed_eur": 311.55,
+      "tariffs": {
+        "tarief_levering_eur": 0.155193,
+        "tarief_teruglevering_eur": 0.028976,
+        "energiebelasting_eur": 0.11085
+      },
+      "household_totals": {
+        "bruto_verbruik_kwh": 1570,
+        "teruglevering_kwh": 147,
+        "netto_verbruik_kwh": 1423,
+        "totale_kosten_eur": 411.03
+      },
+      "gmail_thread_id": "19daa3ecb8f378ea",
+      "paid": true,
+      "paid_on": "2026-04-21",
+      "notes": "Covers ~25 days of March + 20 days of April at March rate. First real bill; prior baseline was 6 March. Marked paid 2026-04-21."
+    }
+  ]
+}
