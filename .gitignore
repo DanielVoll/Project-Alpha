@@ -1,0 +1,7 @@
+# Sandbox-leftover files from zip -r (can't be deleted from within Cowork)
+Utility/.trash_*
+Utility/zi??????
+
+# Python bytecode caches
+__pycache__/
+*.pyc

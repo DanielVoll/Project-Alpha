@@ -24,7 +24,7 @@ Every month the landlord (Pieter Blom, `info@prblom.nl`) forwards a "Fwd: Maande
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "currency": "EUR",
   "landlord_name": "Name of landlord (optional)",
   "landlord_payment_details": "IBAN / Tikkie link / etc. (optional)",
@@ -57,6 +57,10 @@ Every month the landlord (Pieter Blom, `info@prblom.nl`) forwards a "Fwd: Maande
 
 Rounding: amounts in EUR are rounded to 2 decimals. Each reading tracks `paid` (bool) and `paid_on` (ISO date or null) so outstanding vs settled months can be told apart.
 
+**Schema migration (v1 → v2):** v2 adds `paid` and `paid_on` fields to each reading. When loading a v1 file, any reading missing `paid` is treated as `paid: false` and is only rewritten on the next normal save.
+
+**Atomic writes:** the skill always writes to `electricity-state.json.tmp` and renames over `electricity-state.json` so an interrupted write can't corrupt history.
+
 ## Core formula
 
 ```
@@ -76,7 +80,7 @@ This is the variable per-kWh cost (delivery tariff + energy tax, BTW inclusive).
 
 ## Trigger
 
-Currently manual — no scheduled task. Run via `/electricity` whenever the monthly report arrives.
+A scheduled reminder fires on the **22nd of each month at 09:00 Amsterdam time** (trigger id: `electricity-monthly-reminder`). It nudges Daniel to read his meter and run `/electricity` — the processing itself is still manual/interactive.
 
 ## Location
 

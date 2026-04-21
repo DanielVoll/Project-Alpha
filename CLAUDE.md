@@ -40,7 +40,7 @@ Monthly electricity payment calculator for the rental. Uses the `/electricity` s
 ### How it works
 Landlord sends a monthly email (pasted text or screenshot) with the average €/kWh price. User pastes the report and gives the current meter reading. Skill extracts the rate, computes `(current − previous) × €/kWh`, stores the new reading, and reports the amount owed. First run is a bootstrap — just captures the baseline reading with no payment due.
 
-No scheduled trigger — fully manual.
+A monthly reminder fires on the **22nd of each month at 09:00 Amsterdam time** (trigger id: `electricity-monthly-reminder`) — it only nudges; processing is still manual via `/electricity`.
 
 ## Utility/service-scheduler.html
 

@@ -73,24 +73,42 @@ If no matching email is found, fall back to asking the user to paste the report 
 
 ### 3. Parse the report (Pure Energie Dutch format)
 
-Extract these fields with simple regex / line matching:
+Regex patterns below match the actual email body layout (verified against the 2026-03 archived report). Variable whitespace between field name and value is common — the report pads columns with spaces for visual alignment, so use `\s+` liberally.
 
-| Field | Regex hint | Example |
-|-------|------------|---------|
-| `period_month` | `Periode:\s*\n?\s*(\w+ \d{4})` | `"maart 2026"` |
-| `tarief_levering_eur` | `Gewogen gemiddelde tarief levering:\s*€([\d,]+)` | `0.155193` |
-| `tarief_teruglevering_eur` | `Gewogen gemiddelde tarief teruglevering:\s*€([\d,]+)` | `0.028976` |
-| `energiebelasting_eur` | `Energiebelasting:\s*€([\d,]+)` (first match — elec section) | `0.11085` |
-| `bruto_verbruik_kwh` | `Je bruto elektraverbruik deze maand:\s*(\d+)\s*kWh` | `1570` |
-| `bruto_teruglevering_kwh` | `Je bruto teruglevering deze maand:\s*(\d+)\s*kWh` | `147` |
-| `netto_verbruik_kwh` | `Je netto elektraverbruik deze maand:\s*(\d+)\s*kWh` | `1423` |
-| `verbruiksafhankelijke_kosten_eur` | `Verbruiksafhankelijke kosten:\s*€\s*([\d,]+)` (first match) | `417.68` |
-| `totale_kosten_eur` | `Totale kosten:\s*€\s*([\d,]+)` (first match) | `411.03` |
+| Field | Regex | Example match |
+|-------|-------|---------------|
+| `period_month_dutch` | `Periode:\s*(\w+\s+\d{4})` | `"maart 2026"` |
+| `bruto_verbruik_kwh` | `Bruto elektraverbruik:\s*(\d+)\s*kWh` | `1570` |
+| `bruto_teruglevering_kwh` | `Bruto teruglevering:\s*(\d+)\s*kWh` | `147` |
+| `netto_verbruik_kwh` | `Netto elektraverbruik:\s*(\d+)\s*kWh` | `1423` |
+| `verbruiksafhankelijke_kosten_eur` | `Verbruiksafhankelijke kosten:\s*€\s*([\d.,]+)` (first match) | `417,68` |
+| `totale_kosten_eur` | `Totale kosten:\s*€\s*([\d.,]+)` (first match) | `411,03` |
+| `tarief_levering_eur` | `tarief levering:\s*€([\d.,]+)\s*per\s*kWh` | `0,155193` |
+| `tarief_teruglevering_eur` | `tarief teruglevering:\s*€([\d.,]+)\s*per\s*kWh` | `0,028976` |
+| `energiebelasting_eur` | `Energiebelasting:\s*€([\d.,]+)\s*per\s*kWh` (electricity — anchor on `per kWh` so you don't pick up the gas `per m³` line) | `0,11085` |
 
 Notes:
-- Dutch uses `,` as decimal separator — convert to `.` before parsing as float.
-- The report has both an electricity section and a gas section. Always take the first match (electricity comes first). The gas energy tax is a different number.
-- Month names are Dutch: januari, februari, maart, april, mei, juni, juli, augustus, september, oktober, november, december. Store period as `"YYYY-MM"` format internally (e.g. `"2026-03"` for "maart 2026").
+- Dutch uses `,` as decimal separator — convert to `.` before parsing as float (e.g. `"0,155193"` → `0.155193`).
+- "Verbruiksafhankelijke kosten" and "Totale kosten" appear twice (electricity + gas); always take the **first** match, which is electricity.
+- Gas lines (`per m³`) are ignored — Daniel doesn't pay for gas.
+- Store period as `"YYYY-MM"` format internally (e.g. `"2026-03"` for "maart 2026").
+
+**Dutch month map** (for `period_month_dutch` → `YYYY-MM`):
+
+| Dutch | Number |
+|-------|--------|
+| januari | 01 |
+| februari | 02 |
+| maart | 03 |
+| april | 04 |
+| mei | 05 |
+| juni | 06 |
+| juli | 07 |
+| augustus | 08 |
+| september | 09 |
+| oktober | 10 |
+| november | 11 |
+| december | 12 |
 
 ### 4. Compute the effective price
 
@@ -188,9 +206,21 @@ Append a new reading entry with all fields:
 
 Write back the full state file, preserving `schema_version`, `currency`, `landlord_name`, `landlord_payment_details`, and `price_formula`.
 
+**Write atomically.** Write the new JSON to `electricity-state.json.tmp` first, verify it parses as valid JSON, then rename/move it over `electricity-state.json`. If the write is interrupted, the original file is still intact and the `.tmp` can be inspected or discarded. Never overwrite the state file in place.
+
 Each reading carries a `paid` boolean (default `false`) and `paid_on` date (ISO, or `null`). New entries default to `paid: false`. If the user later says things like "mark March paid" or "paid all", set `paid: true` and `paid_on` to today's ISO date on the matching entries.
 
+**Schema migration:** current `schema_version` is `2` (added `paid` / `paid_on` to reading entries). If loading a file with `schema_version: 1` or readings missing the `paid` field, treat those readings as `paid: false` without rewriting them. Only migrate on the next normal save.
+
 ### 9. Report to the user
+
+Before printing, compute rolling totals from `readings[]`:
+
+- `ytd_kwh` — sum of `kwh_used` for readings in the current calendar year
+- `ytd_paid_eur` — sum of `amount_owed_eur` where `paid == true`, current year
+- `outstanding_eur` — sum of `amount_owed_eur` where `paid == false` (any year)
+- `lifetime_kwh` — sum of all non-null `kwh_used`
+- `lifetime_paid_eur` — sum of all paid `amount_owed_eur`
 
 Output a clear summary:
 
@@ -205,11 +235,21 @@ Effective price per kWh:       €0.26604
 
 💶 Amount owed to Pieter Blom: €59.17
 
+Totals
+  YTD (2026):       222.4 kWh · €0.00 paid · €59.17 outstanding
+  Lifetime:         222.4 kWh · €0.00 paid
+
 Saved as reading #N in electricity-state.json.
 Report archived to Utility/electricity/reports/2026-03.md.
 ```
 
-If `landlord_payment_details` is set, suggest the exact transfer line (e.g. "Stroom maart 2026 — €59.17 → IBAN NL..").
+**Payment line.** If `landlord_payment_details` is set in state, append a ready-to-paste line **after** the totals block, formatted exactly like this:
+
+```
+💸 Payment: "Stroom maart 2026 — €59.17" → <landlord_payment_details>
+```
+
+Use the Dutch month name (not the ISO code) in the description string — it matches what Pieter will see in his bank feed. If `landlord_payment_details` is `null`, omit the payment line entirely.
 
 ---
 
@@ -243,4 +283,4 @@ Apply the chosen formula going forward. Do NOT retroactively rewrite old reading
 
 - All dates in ISO format (YYYY-MM-DD), timezone Europe/Amsterdam.
 - All monetary values in EUR, tariffs stored with full precision (6 decimals), amounts rounded to cents.
-- The skill is fully manual / interactive — there is no scheduled trigger. The user runs `/electricity` when a new report arrives.
+- A monthly reminder fires on the **22nd of each month at 09:00 Amsterdam time** (trigger id: `electricity-monthly-reminder`) prompting Daniel to read his meter and run `/electricity`. The actual processing is still manual / interactive — the trigger only nudges.
