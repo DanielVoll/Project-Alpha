@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 FIFA World Cup Predictor</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080d08;
+  --surface: #0f160f;
+  --surface2: #182018;
+  --surface3: #1f2c1f;
+  --green: #22c55e;
+  --green-dim: #16a34a;
+  --gold: #fbbf24;
+  --text: #e8f5e9;
+  --text-dim: #7a9a80;
+  --red: #f87171;
+  --border: #253525;
+}
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+nav {
+  display: flex; align-items: center; gap: 4px;
+  padding: 10px 20px; background: var(--surface);
+  border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
+}
+.logo { font-weight: 900; font-size: 1.05rem; color: var(--green); margin-right: 12px; letter-spacing: -0.02em; }
+nav button {
+  background: none; border: none; color: var(--text-dim);
+  padding: 7px 14px; border-radius: 8px; cursor: pointer;
+  font-size: 0.875rem; transition: all 0.15s;
+}
+nav button:hover { background: var(--surface2); color: var(--text); }
+nav button.active { background: var(--surface2); color: var(--green); font-weight: 700; }
+
+.screen { display: none; padding: 24px 20px; max-width: 1140px; margin: 0 auto; }
+.screen.active { display: block; }
+
+/* ── HOME ── */
+.hero { text-align: center; padding: 64px 20px 40px; }
+.hero h1 {
+  font-size: 3rem; font-weight: 900; letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--green) 0%, #86efac 50%, var(--gold) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 10px;
+}
+.hero p { color: var(--text-dim); font-size: 1.05rem; margin-bottom: 36px; }
+.hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+.btn-primary {
+  background: var(--green); color: #021a02; border: none;
+  padding: 13px 30px; border-radius: 12px; font-size: 0.95rem;
+  font-weight: 700; cursor: pointer; transition: all 0.15s;
+}
+.btn-primary:hover { background: #16a34a; transform: translateY(-1px); }
+.btn-outline {
+  background: transparent; color: var(--text); border: 1px solid var(--border);
+  padding: 13px 30px; border-radius: 12px; font-size: 0.95rem;
+  font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.btn-outline:hover { border-color: var(--green); color: var(--green); }
+.sim-status { color: var(--text-dim); font-size: 0.875rem; min-height: 28px; }
+.champ-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, #1a1200, #0a1a08);
+  border: 1px solid var(--gold); color: var(--gold);
+  padding: 6px 16px; border-radius: 20px; font-weight: 700;
+  font-size: 1rem; margin-top: 8px;
+}
+
+/* ── MODE BADGE ── */
+.mode-bar {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+  font-size: 0.8rem; color: var(--text-dim);
+}
+.mode-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 700;
+}
+.mode-badge.sim { background: #0a2a0a; color: var(--green); border: 1px solid #22553a; }
+.mode-badge.manual { background: #1a1200; color: var(--gold); border: 1px solid #5a4200; }
+
+/* ── GROUPS ── */
+.group-tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 20px; }
+.gtab {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text-dim); padding: 6px 13px; border-radius: 8px;
+  cursor: pointer; font-size: 0.82rem; transition: all 0.12s;
+}
+.gtab:hover { border-color: var(--green); color: var(--text); }
+.gtab.active { background: var(--green); color: #021a02; font-weight: 700; border-color: var(--green); }
+
+.group-panel { display: flex; gap: 20px; flex-wrap: wrap; }
+.standings-wrap, .matches-wrap { flex: 1; min-width: 280px; }
+.section-title {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-dim); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+th { color: var(--text-dim); font-weight: 600; padding: 5px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+th:not(:first-child) { text-align: center; }
+td { padding: 7px 8px; border-bottom: 1px solid #162016; }
+td:not(:first-child) { text-align: center; }
+tr:last-child td { border-bottom: none; }
+.tc { display: flex; align-items: center; gap: 7px; }
+.bq { background: var(--green); color: #021a02; font-size: 0.6rem; font-weight: 800; padding: 1px 5px; border-radius: 3px; }
+.b3 { background: var(--gold); color: #021a02; font-size: 0.6rem; font-weight: 800; padding: 1px 5px; border-radius: 3px; }
+.bx { background: #222; color: #555; font-size: 0.6rem; font-weight: 800; padding: 1px 5px; border-radius: 3px; }
+.gd-pos { color: var(--green); }
+.gd-neg { color: var(--red); }
+.pts-cell { font-weight: 700; }
+
+.match-card {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px; background: var(--surface2); border-radius: 8px;
+  margin-bottom: 5px; gap: 8px; cursor: pointer; transition: background 0.12s;
+  border: 1px solid transparent;
+}
+.match-card:hover { background: var(--surface3); border-color: var(--border); }
+.match-card.locked { border-color: #3a3000; }
+.mt { font-size: 0.82rem; flex: 1; }
+.mt.right { text-align: right; }
+.ms {
+  font-weight: 700; font-size: 0.95rem; color: var(--green);
+  text-align: center; min-width: 48px; flex-shrink: 0;
+}
+.ms.locked { color: var(--gold); }
+.lock-icon { font-size: 0.65rem; vertical-align: middle; }
+.resim-btn {
+  margin-top: 10px; background: none; border: 1px solid var(--border);
+  color: var(--text-dim); padding: 7px 14px; border-radius: 8px;
+  cursor: pointer; font-size: 0.8rem; transition: all 0.12s;
+}
+.resim-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* ── BRACKET ── */
+.bracket-container { overflow-x: auto; padding-bottom: 24px; }
+.bracket { display: flex; align-items: flex-start; gap: 0; }
+.b-round { display: flex; flex-direction: column; min-width: 155px; }
+.b-round-title {
+  text-align: center; font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text-dim); padding: 6px 4px 10px;
+}
+.b-match-wrap { display: flex; flex-direction: column; justify-content: center; flex: 1; padding: 3px 5px; }
+.b-match { margin: 2px 0; }
+.bt {
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 5px 8px; font-size: 0.75rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  white-space: nowrap; overflow: hidden;
+}
+.bt:first-child { border-radius: 5px 5px 0 0; border-bottom: none; }
+.bt:last-child { border-radius: 0 0 5px 5px; }
+.bt.win { border-color: var(--green); color: var(--green); font-weight: 700; background: #0a1e0a; }
+.bt.champ { border-color: var(--gold) !important; color: var(--gold) !important; background: #1a1200 !important; font-weight: 900; }
+.bscore { font-size: 0.7rem; color: var(--text-dim); flex-shrink: 0; }
+
+.champ-banner {
+  text-align: center; padding: 20px 24px; margin-bottom: 24px;
+  background: linear-gradient(135deg, #120f00, #080d08);
+  border: 1px solid var(--gold); border-radius: 14px;
+}
+.champ-banner .trophy { font-size: 2.2rem; display: block; margin-bottom: 6px; }
+.champ-banner h2 { color: var(--gold); font-size: 1.5rem; font-weight: 900; }
+.champ-banner p { color: var(--text-dim); font-size: 0.8rem; margin-top: 4px; }
+
+/* ── PROBS ── */
+.probs-list { display: flex; flex-direction: column; gap: 5px; }
+.prob-row { display: flex; align-items: center; gap: 10px; }
+.p-rank { color: var(--text-dim); font-size: 0.75rem; width: 22px; text-align: right; flex-shrink: 0; }
+.p-name { width: 150px; font-size: 0.82rem; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+.p-bar-bg { flex: 1; background: var(--surface2); border-radius: 4px; height: 20px; overflow: hidden; }
+.p-bar { height: 100%; background: linear-gradient(90deg, var(--green-dim), var(--green)); border-radius: 4px; transition: width 0.5s ease; min-width: 3px; }
+.p-pct { font-size: 0.78rem; color: var(--text-dim); width: 42px; text-align: right; flex-shrink: 0; }
+.toggle-btn {
+  margin-top: 14px; background: none; border: 1px solid var(--border);
+  color: var(--text-dim); padding: 8px 16px; border-radius: 8px;
+  cursor: pointer; font-size: 0.82rem; transition: all 0.12s;
+}
+.toggle-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* ── MODAL ── */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8); z-index: 50;
+  align-items: center; justify-content: center;
+}
+.modal-bg.show { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; width: 320px;
+}
+.modal h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
+.modal-teams { text-align: center; font-size: 0.92rem; margin-bottom: 16px; line-height: 1.6; }
+.modal-vs { color: var(--text-dim); margin: 0 6px; }
+.score-row { display: flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 20px; }
+.score-row input {
+  width: 64px; text-align: center; background: var(--surface2);
+  border: 1px solid var(--border); color: var(--text);
+  padding: 10px 6px; border-radius: 8px; font-size: 1.4rem; font-weight: 700;
+  -moz-appearance: textfield;
+}
+.score-row input::-webkit-outer-spin-button,
+.score-row input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.score-row input:focus { outline: none; border-color: var(--green); }
+.modal-sep { color: var(--text-dim); font-size: 1.1rem; }
+.modal-actions { display: flex; gap: 8px; }
+.modal-actions button { flex: 1; padding: 9px 6px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.82rem; font-weight: 700; }
+.m-save { background: var(--green); color: #021a02; }
+.m-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border) !important; }
+.m-reset { background: #1a0808; color: var(--red); border: 1px solid #3a1010 !important; }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+.empty-state p { font-size: 1rem; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">⚽ WC 2026</span>
+  <button id="nav-home" class="active" onclick="showScreen('home')">Home</button>
+  <button id="nav-groups" onclick="showScreen('groups')">Groups</button>
+  <button id="nav-bracket" onclick="showScreen('bracket')">Bracket</button>
+  <button id="nav-probs" onclick="showScreen('probs')">Win %</button>
+</nav>
+
+<div id="screen-home" class="screen active">
+  <div class="hero">
+    <h1>2026 World Cup Predictor</h1>
+    <p>48 teams · 12 groups · Monte Carlo simulation meets interactive picks</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="startSim()">⚡ Simulate Tournament</button>
+      <button class="btn-outline" onclick="startManual()">✏️ Make Your Picks</button>
+    </div>
+    <div class="sim-status" id="sim-status">Click Simulate to run 8,000 Monte Carlo predictions.</div>
+  </div>
+</div>
+
+<div id="screen-groups" class="screen">
+  <div class="mode-bar">
+    <span>Mode:</span>
+    <span class="mode-badge sim" id="mode-badge">Simulation</span>
+    <span id="mode-hint"></span>
+  </div>
+  <div class="group-tabs" id="group-tabs"></div>
+  <div id="group-content"></div>
+</div>
+
+<div id="screen-bracket" class="screen">
+  <div id="bracket-content"></div>
+</div>
+
+<div id="screen-probs" class="screen">
+  <h2 style="margin-bottom:6px;font-size:1.3rem">Tournament Win Probability</h2>
+  <p style="color:var(--text-dim);font-size:0.82rem;margin-bottom:20px" id="probs-meta">Run a simulation first.</p>
+  <div id="probs-content"></div>
+</div>
+
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <h3>Set Match Result</h3>
+    <div class="modal-teams" id="modal-teams"></div>
+    <div class="score-row">
+      <input type="number" id="s1" min="0" max="20" value="1">
+      <span class="modal-sep">–</span>
+      <input type="number" id="s2" min="0" max="20" value="0">
+    </div>
+    <div class="modal-actions">
+      <button class="m-cancel" onclick="closeModal()">Cancel</button>
+      <button class="m-reset" id="m-reset" onclick="resetMatch()" style="display:none">Reset</button>
+      <button class="m-save" onclick="saveMatch()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TEAM DATA (2026 FIFA WC draw, December 5 2024) ────────────────────────────
+// Groups are approximated from the official draw; Elo ratings derived from FIFA rankings.
+
+const TEAMS = [
+  // Group A — Host: USA
+  { name:'United States',  flag:'🇺🇸', group:'A', elo:1662 },
+  { name:'Colombia',       flag:'🇨🇴', group:'A', elo:1649 },
+  { name:'Morocco',        flag:'🇲🇦', group:'A', elo:1668 },
+  { name:'El Salvador',    flag:'🇸🇻', group:'A', elo:1435 },
+  // Group B — Host: Mexico
+  { name:'Mexico',         flag:'🇲🇽', group:'B', elo:1636 },
+  { name:'Argentina',      flag:'🇦🇷', group:'B', elo:1854 },
+  { name:'Poland',         flag:'🇵🇱', group:'B', elo:1622 },
+  { name:'Saudi Arabia',   flag:'🇸🇦', group:'B', elo:1519 },
+  // Group C — Host: Canada
+  { name:'Canada',         flag:'🇨🇦', group:'C', elo:1607 },
+  { name:'France',         flag:'🇫🇷', group:'C', elo:1832 },
+  { name:'Uruguay',        flag:'🇺🇾', group:'C', elo:1679 },
+  { name:'Cameroon',       flag:'🇨🇲', group:'C', elo:1504 },
+  // Group D
+  { name:'Brazil',         flag:'🇧🇷', group:'D', elo:1787 },
+  { name:'Germany',        flag:'🇩🇪', group:'D', elo:1778 },
+  { name:'Japan',          flag:'🇯🇵', group:'D', elo:1659 },
+  { name:'Egypt',          flag:'🇪🇬', group:'D', elo:1549 },
+  // Group E
+  { name:'Spain',          flag:'🇪🇸', group:'E', elo:1793 },
+  { name:'South Korea',    flag:'🇰🇷', group:'E', elo:1617 },
+  { name:'Senegal',        flag:'🇸🇳', group:'E', elo:1623 },
+  { name:'Costa Rica',     flag:'🇨🇷', group:'E', elo:1451 },
+  // Group F
+  { name:'England',        flag:'🇬🇧', group:'F', elo:1798 },
+  { name:'Ecuador',        flag:'🇪🇨', group:'F', elo:1598 },
+  { name:'Croatia',        flag:'🇭🇷', group:'F', elo:1693 },
+  { name:'DR Congo',       flag:'🇨🇩', group:'F', elo:1484 },
+  // Group G
+  { name:'Portugal',       flag:'🇵🇹', group:'G', elo:1762 },
+  { name:'Serbia',         flag:'🇷🇸', group:'G', elo:1612 },
+  { name:'Nigeria',        flag:'🇳🇬', group:'G', elo:1578 },
+  { name:'Australia',      flag:'🇦🇺', group:'G', elo:1531 },
+  // Group H
+  { name:'Netherlands',    flag:'🇳🇱', group:'H', elo:1754 },
+  { name:'Chile',          flag:'🇨🇱', group:'H', elo:1543 },
+  { name:'Ivory Coast',    flag:'🇨🇮', group:'H', elo:1568 },
+  { name:'Iraq',           flag:'🇮🇶', group:'H', elo:1501 },
+  // Group I
+  { name:'Belgium',        flag:'🇧🇪', group:'I', elo:1718 },
+  { name:'Austria',        flag:'🇦🇹', group:'I', elo:1597 },
+  { name:'Tunisia',        flag:'🇹🇳', group:'I', elo:1512 },
+  { name:'Panama',         flag:'🇵🇦', group:'I', elo:1475 },
+  // Group J
+  { name:'Italy',          flag:'🇮🇹', group:'J', elo:1713 },
+  { name:'Denmark',        flag:'🇩🇰', group:'J', elo:1647 },
+  { name:'Iran',           flag:'🇮🇷', group:'J', elo:1546 },
+  { name:'Jamaica',        flag:'🇯🇲', group:'J', elo:1426 },
+  // Group K
+  { name:'Switzerland',    flag:'🇨🇭', group:'K', elo:1643 },
+  { name:'Hungary',        flag:'🇭🇺', group:'K', elo:1589 },
+  { name:'South Africa',   flag:'🇿🇦', group:'K', elo:1554 },
+  { name:'Honduras',       flag:'🇭🇳', group:'K', elo:1456 },
+  // Group L
+  { name:'Turkey',         flag:'🇹🇷', group:'L', elo:1588 },
+  { name:'Uzbekistan',     flag:'🇺🇿', group:'L', elo:1492 },
+  { name:'Jordan',         flag:'🇯🇴', group:'L', elo:1467 },
+  { name:'Guatemala',      flag:'🇬🇹', group:'L', elo:1411 },
+];
+
+const GROUPS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+const byName = {};
+TEAMS.forEach(t => byName[t.name] = t);
+
+// ── POISSON / MATCH SIMULATION ────────────────────────────────────────────────
+
+function poisson(lambda) {
+  if (lambda <= 0) return 0;
+  const L = Math.exp(-lambda);
+  let k = 0, p = 1;
+  do { k++; p *= Math.random(); } while (p > L);
+  return k - 1;
+}
+
+function eloWinP(eloA, eloB) {
+  return 1 / (1 + Math.pow(10, -(eloA - eloB) / 400));
+}
+
+// Returns { g1, g2, winner (team obj or null for draws), pens }
+function simMatch(t1, t2, knockout) {
+  const p = eloWinP(t1.elo, t2.elo);
+  const base = 1.18;
+  let g1 = poisson(base * 2 * p);
+  let g2 = poisson(base * 2 * (1 - p));
+  let pens = false;
+
+  if (knockout && g1 === g2) {
+    // Extra time: slightly lower scoring
+    g1 += poisson(0.28 * 2 * p);
+    g2 += poisson(0.28 * 2 * (1 - p));
+    if (g1 === g2) {
+      pens = true;
+      // Penalty shootout — slight advantage to higher Elo
+      const penP = 0.5 + (p - 0.5) * 0.3;
+      if (Math.random() < penP) g1++;
+      else g2++;
+    }
+  }
+
+  const winner = g1 > g2 ? t1 : g2 > g1 ? t2 : null;
+  return { g1, g2, winner, pens };
+}
+
+// ── GROUP STAGE ───────────────────────────────────────────────────────────────
+
+function mid(a, b) { return [a, b].sort().join('||'); }
+
+function simGroup(g, overrides) {
+  const teams = TEAMS.filter(t => t.group === g);
+  const st = {};
+  teams.forEach(t => st[t.name] = { team: t, w:0, d:0, l:0, gf:0, ga:0, pts:0 });
+
+  const pairs = [];
+  for (let i = 0; i < teams.length; i++)
+    for (let j = i + 1; j < teams.length; j++)
+      pairs.push([teams[i], teams[j]]);
+
+  const results = {};
+  pairs.forEach(([a, b]) => {
+    const key = mid(a.name, b.name);
+    let res;
+    if (overrides[key]) {
+      const ov = overrides[key];
+      res = { g1: ov.g1, g2: ov.g2, winner: ov.g1 > ov.g2 ? a : ov.g2 > ov.g1 ? b : null, pens: false };
+    } else {
+      res = simMatch(a, b, false);
+    }
+    results[key] = { a, b, ...res };
+
+    const sa = st[a.name], sb = st[b.name];
+    sa.gf += res.g1; sa.ga += res.g2;
+    sb.gf += res.g2; sb.ga += res.g1;
+    if (res.winner === a)      { sa.w++; sa.pts += 3; sb.l++; }
+    else if (res.winner === b) { sb.w++; sb.pts += 3; sa.l++; }
+    else                        { sa.d++; sa.pts++; sb.d++; sb.pts++; }
+  });
+
+  const sorted = teams.slice().sort((a, b) => {
+    const sa = st[a.name], sb = st[b.name];
+    if (sb.pts !== sa.pts) return sb.pts - sa.pts;
+    const gdA = sa.gf - sa.ga, gdB = sb.gf - sb.ga;
+    if (gdB !== gdA) return gdB - gdA;
+    if (sb.gf !== sa.gf) return sb.gf - sa.gf;
+    return Math.random() - 0.5;
+  });
+
+  return { sorted, st, results };
+}
+
+function best8Thirds(groupResults) {
+  const thirds = GROUPS.map(g => {
+    const { sorted, st } = groupResults[g];
+    const t = sorted[2];
+    const s = st[t.name];
+    return { team: t, pts: s.pts, gd: s.gf - s.ga, gf: s.gf };
+  });
+  thirds.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+  return new Set(thirds.slice(0, 8).map(t => t.team.name));
+}
+
+// ── KNOCKOUT BRACKET ──────────────────────────────────────────────────────────
+
+function runKnockoutRound(matches, overrides) {
+  const next = [];
+  for (let i = 0; i < matches.length; i += 2) {
+    const wA = matches[i].winner;
+    const wB = matches[i + 1].winner;
+    if (!wA || !wB) {
+      next.push({ t1: wA || { name:'TBD', flag:'', elo:1500 }, t2: wB || { name:'TBD', flag:'', elo:1500 }, g1:0, g2:0, winner: wA || wB, pens:false });
+      continue;
+    }
+    const key = mid(wA.name, wB.name);
+    let res;
+    if (overrides[key]) {
+      const ov = overrides[key];
+      res = { g1: ov.g1, g2: ov.g2, winner: ov.g1 >= ov.g2 ? wA : wB, pens: false };
+    } else {
+      res = simMatch(wA, wB, true);
+    }
+    next.push({ t1: wA, t2: wB, ...res });
+  }
+  return next;
+}
+
+function simTournament(overrides) {
+  const groupResults = {};
+  GROUPS.forEach(g => { groupResults[g] = simGroup(g, overrides); });
+
+  const q = [];
+  const thirdsSet = best8Thirds(groupResults);
+
+  GROUPS.forEach(g => {
+    const { sorted } = groupResults[g];
+    q.push({ team: sorted[0], pos: 1, gi: GROUPS.indexOf(g) });
+    q.push({ team: sorted[1], pos: 2, gi: GROUPS.indexOf(g) });
+    if (thirdsSet.has(sorted[2].name)) q.push({ team: sorted[2], pos: 3, gi: GROUPS.indexOf(g) });
+  });
+
+  // Sort: 1st-place slots 0-11, 2nd-place 12-23, 3rd-place 24-31
+  q.sort((a, b) => {
+    const posOrder = { 1: 0, 2: 12, 3: 24 };
+    return (posOrder[a.pos] + a.gi) - (posOrder[b.pos] + b.gi);
+  });
+
+  // Pair: slot i vs slot 31-i
+  const r32 = [];
+  for (let i = 0; i < 16; i++) {
+    const t1 = q[i].team, t2 = q[31 - i].team;
+    const key = mid(t1.name, t2.name);
+    let res;
+    if (overrides[key]) {
+      const ov = overrides[key];
+      res = { g1: ov.g1, g2: ov.g2, winner: ov.g1 >= ov.g2 ? t1 : t2, pens: false };
+    } else {
+      res = simMatch(t1, t2, true);
+    }
+    r32.push({ t1, t2, ...res });
+  }
+
+  const r16   = runKnockoutRound(r32, overrides);
+  const qf    = runKnockoutRound(r16, overrides);
+  const sf    = runKnockoutRound(qf, overrides);
+  const final = runKnockoutRound(sf, overrides);
+
+  return { groupResults, r32, r16, qf, sf, final, champion: final[0]?.winner };
+}
+
+// ── MONTE CARLO ───────────────────────────────────────────────────────────────
+
+function monteCarlo(n) {
+  const counts = {};
+  TEAMS.forEach(t => counts[t.name] = 0);
+  for (let i = 0; i < n; i++) {
+    const res = simTournament(state.locked);
+    if (res.champion) counts[res.champion.name]++;
+  }
+  const probs = {};
+  TEAMS.forEach(t => probs[t.name] = +(counts[t.name] / n * 100).toFixed(1));
+  return probs;
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+
+const state = {
+  mode: 'sim',          // 'sim' | 'manual'
+  locked: {},           // mid → { g1, g2 }
+  result: null,         // last simTournament result
+  mcProbs: {},
+  activeGroup: 'A',
+  showAll: false,
+  modalCtx: null,
+};
+
+// ── ROUTING ───────────────────────────────────────────────────────────────────
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'groups')  renderGroups();
+  if (name === 'bracket') renderBracket();
+  if (name === 'probs')   renderProbs();
+}
+
+// ── HOME ACTIONS ──────────────────────────────────────────────────────────────
+
+function startSim() {
+  state.mode = 'sim';
+  state.locked = {};
+  const el = document.getElementById('sim-status');
+  el.textContent = 'Running 8,000 simulations…';
+  setTimeout(() => {
+    state.result  = simTournament(state.locked);
+    state.mcProbs = monteCarlo(8000);
+    const c = state.result.champion;
+    el.innerHTML = c
+      ? `Done — most likely champion: <span class="champ-chip">${c.flag} ${c.name}</span>`
+      : 'Simulation complete.';
+    showScreen('groups');
+  }, 30);
+}
+
+function startManual() {
+  state.mode = 'manual';
+  state.locked = {};
+  if (!state.result) state.result = simTournament({});
+  showScreen('groups');
+}
+
+// ── GROUPS SCREEN ─────────────────────────────────────────────────────────────
+
+function renderGroups() {
+  if (!state.result) {
+    document.getElementById('group-content').innerHTML =
+      '<div class="empty-state"><p>No simulation yet.</p><button class="btn-primary" onclick="startSim()">Simulate</button></div>';
+    document.getElementById('group-tabs').innerHTML = '';
+    return;
+  }
+
+  const badge = document.getElementById('mode-badge');
+  const hint  = document.getElementById('mode-hint');
+  if (state.mode === 'manual') {
+    badge.textContent = 'Manual picks'; badge.className = 'mode-badge manual';
+    hint.textContent = 'Click any match to set the score.';
+  } else {
+    badge.textContent = 'Simulation'; badge.className = 'mode-badge sim';
+    hint.textContent = 'Click a match to override.';
+  }
+
+  document.getElementById('group-tabs').innerHTML = GROUPS.map(g =>
+    `<button class="gtab${g === state.activeGroup ? ' active' : ''}" onclick="selGroup('${g}')">Group ${g}</button>`
+  ).join('');
+
+  renderGroupPanel(state.activeGroup);
+}
+
+function selGroup(g) {
+  state.activeGroup = g;
+  document.querySelectorAll('.gtab').forEach(b => b.classList.toggle('active', b.textContent === 'Group ' + g));
+  renderGroupPanel(g);
+}
+
+function renderGroupPanel(g) {
+  if (!state.result) return;
+  const { sorted, st, results } = state.result.groupResults[g];
+
+  const allThirds = GROUPS.map(grp => {
+    const { sorted: s, st: t } = state.result.groupResults[grp];
+    const t3 = s[2]; const ss = t[t3.name];
+    return { name: t3.name, pts: ss.pts, gd: ss.gf - ss.ga, gf: ss.gf };
+  }).sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+  const top8thirds = new Set(allThirds.slice(0, 8).map(t => t.name));
+
+  const trows = sorted.map((team, i) => {
+    const s = st[team.name];
+    const gd = s.gf - s.ga;
+    const b = i < 2 ? '<span class="bq">Q</span>' : (top8thirds.has(team.name) ? '<span class="b3">3</span>' : '<span class="bx">–</span>');
+    return `<tr>
+      <td><div class="tc">${b}<span>${team.flag}</span> ${team.name}</div></td>
+      <td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
+      <td>${s.gf}</td><td>${s.ga}</td>
+      <td class="${gd > 0 ? 'gd-pos' : gd < 0 ? 'gd-neg' : ''}">${gd > 0 ? '+' : ''}${gd}</td>
+      <td class="pts-cell">${s.pts}</td>
+    </tr>`;
+  }).join('');
+
+  const teams = TEAMS.filter(t => t.group === g);
+  const pairs = [];
+  for (let i = 0; i < teams.length; i++)
+    for (let j = i + 1; j < teams.length; j++) pairs.push([teams[i], teams[j]]);
+
+  const mcards = pairs.map(([a, b]) => {
+    const key = mid(a.name, b.name);
+    const r = results[key];
+    const locked = !!state.locked[key];
+    return `<div class="match-card${locked ? ' locked' : ''}" onclick="openModal('${key}','${g}')">
+      <span class="mt">${a.flag} ${a.name}</span>
+      <span class="ms${locked ? ' locked' : ''}">${r.g1} – ${r.g2}${locked ? ' <span class="lock-icon">🔒</span>' : ''}</span>
+      <span class="mt right">${b.name} ${b.flag}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('group-content').innerHTML = `
+    <div class="group-panel">
+      <div class="standings-wrap">
+        <div class="section-title">Standings — Group ${g}</div>
+        <table>
+          <thead><tr><th>Team</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead>
+          <tbody>${trows}</tbody>
+        </table>
+      </div>
+      <div class="matches-wrap">
+        <div class="section-title">Matches${state.mode === 'manual' ? ' <span style="color:var(--gold);font-size:0.7rem">(click to set score)</span>' : ''}</div>
+        ${mcards}
+        <button class="resim-btn" onclick="reSimGroup('${g}')">↺ Re-simulate Group ${g}</button>
+      </div>
+    </div>`;
+}
+
+function reSimGroup(g) {
+  const teams = TEAMS.filter(t => t.group === g);
+  for (let i = 0; i < teams.length; i++)
+    for (let j = i + 1; j < teams.length; j++)
+      delete state.locked[mid(teams[i].name, teams[j].name)];
+  state.result = simTournament(state.locked);
+  renderGroupPanel(g);
+}
+
+// ── BRACKET SCREEN ────────────────────────────────────────────────────────────
+
+function renderBracket() {
+  if (!state.result) {
+    document.getElementById('bracket-content').innerHTML =
+      '<div class="empty-state"><p>Run a simulation first.</p><button class="btn-primary" onclick="startSim()">Simulate</button></div>';
+    return;
+  }
+
+  const { r32, r16, qf, sf, final, champion } = state.result;
+
+  const champHtml = champion
+    ? `<div class="champ-banner"><span class="trophy">🏆</span><h2>${champion.flag} ${champion.name}</h2><p>Predicted 2026 World Cup Champion</p></div>`
+    : '';
+
+  function mkMatch(m) {
+    if (!m || !m.t1) return '';
+    const s1 = m.pens && m.g1 > m.g2 ? `${m.g1}(P)` : m.g1;
+    const s2 = m.pens && m.g2 > m.g1 ? `${m.g2}(P)` : m.g2;
+    const w1 = m.winner === m.t1;
+    const w2 = m.winner === m.t2;
+    const c1 = w1 && m.winner === champion ? 'champ' : w1 ? 'win' : '';
+    const c2 = w2 && m.winner === champion ? 'champ' : w2 ? 'win' : '';
+    const n1 = m.t1.name === 'TBD' ? 'TBD' : `${m.t1.flag} ${m.t1.name.split(' ').slice(-1)[0]}`;
+    const n2 = m.t2.name === 'TBD' ? 'TBD' : `${m.t2.flag} ${m.t2.name.split(' ').slice(-1)[0]}`;
+    return `<div class="b-match">
+      <div class="bt ${c1}"><span>${n1}</span><span class="bscore">${s1}</span></div>
+      <div class="bt ${c2}"><span>${n2}</span><span class="bscore">${s2}</span></div>
+    </div>`;
+  }
+
+  const rounds = [
+    { label:'Round of 32', matches: r32 },
+    { label:'Round of 16', matches: r16 },
+    { label:'Quarter-finals', matches: qf },
+    { label:'Semi-finals', matches: sf },
+    { label:'Final', matches: final },
+  ];
+
+  // For each round, distribute matches with equal vertical spacing
+  const maxLen = Math.max(...rounds.map(r => r.matches.length));
+
+  const cols = rounds.map(r => {
+    const items = r.matches.map(m => mkMatch(m));
+    // Pad with spacers for visual alignment
+    const spacer = `<div class="b-match" style="height:${Math.max(0, Math.floor((maxLen / r.matches.length - 1) * 24))}px"></div>`;
+    const spread = [];
+    items.forEach((item, i) => {
+      spread.push(item);
+      if (i < items.length - 1) spread.push(spacer);
+    });
+    return `<div class="b-round">
+      <div class="b-round-title">${r.label}</div>
+      <div class="b-match-wrap">${spread.join('')}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('bracket-content').innerHTML = `
+    ${champHtml}
+    <div class="bracket-container"><div class="bracket">${cols}</div></div>`;
+}
+
+// ── PROBABILITIES SCREEN ──────────────────────────────────────────────────────
+
+function renderProbs() {
+  const meta = document.getElementById('probs-meta');
+  const cont = document.getElementById('probs-content');
+  if (!Object.keys(state.mcProbs).length) {
+    meta.textContent = 'Run a simulation first.';
+    cont.innerHTML = '<div class="empty-state"><p>No data yet.</p><button class="btn-primary" onclick="startSim()">Simulate</button></div>';
+    return;
+  }
+
+  meta.textContent = 'Based on 8,000 Monte Carlo simulations. Elo ratings derived from FIFA World Rankings.';
+
+  const sorted = TEAMS.slice().sort((a, b) => state.mcProbs[b.name] - state.mcProbs[a.name]);
+  const display = state.showAll ? sorted : sorted.slice(0, 14);
+  const maxP = state.mcProbs[sorted[0].name] || 1;
+
+  const rows = display.map((t, i) => {
+    const p = state.mcProbs[t.name];
+    const w = Math.max(1, (p / maxP) * 100);
+    return `<div class="prob-row">
+      <span class="p-rank">${i + 1}</span>
+      <span class="p-name">${t.flag} ${t.name}</span>
+      <div class="p-bar-bg"><div class="p-bar" style="width:${w}%"></div></div>
+      <span class="p-pct">${p}%</span>
+    </div>`;
+  }).join('');
+
+  cont.innerHTML = `
+    <div class="probs-list">${rows}</div>
+    <button class="toggle-btn" onclick="toggleAll()">${state.showAll ? 'Show top 14' : 'Show all 48 teams'}</button>`;
+}
+
+function toggleAll() {
+  state.showAll = !state.showAll;
+  renderProbs();
+}
+
+// ── MATCH MODAL ───────────────────────────────────────────────────────────────
+
+function openModal(key, group) {
+  const [nameA, nameB] = key.split('||');
+  const tA = byName[nameA], tB = byName[nameB];
+  if (!tA || !tB) return;
+
+  const existing = state.locked[key];
+  const res = state.result?.groupResults[group]?.results[key];
+  const cur = existing || res || { g1: 1, g2: 0 };
+
+  document.getElementById('modal-teams').innerHTML =
+    `${tA.flag} <strong>${tA.name}</strong> <span class="modal-vs">vs</span> ${tB.flag} <strong>${tB.name}</strong>`;
+  document.getElementById('s1').value = cur.g1;
+  document.getElementById('s2').value = cur.g2;
+  document.getElementById('m-reset').style.display = existing ? 'block' : 'none';
+
+  state.modalCtx = { key, group };
+  document.getElementById('modal-bg').classList.add('show');
+  document.getElementById('s1').focus();
+  document.getElementById('s1').select();
+}
+
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('show');
+  state.modalCtx = null;
+}
+
+function saveMatch() {
+  const { key, group } = state.modalCtx;
+  const g1 = Math.max(0, parseInt(document.getElementById('s1').value) || 0);
+  const g2 = Math.max(0, parseInt(document.getElementById('s2').value) || 0);
+  state.locked[key] = { g1, g2 };
+  state.result = simTournament(state.locked);
+  closeModal();
+  renderGroupPanel(group);
+}
+
+function resetMatch() {
+  const { key, group } = state.modalCtx;
+  delete state.locked[key];
+  state.result = simTournament(state.locked);
+  closeModal();
+  renderGroupPanel(group);
+}
+
+document.getElementById('modal-bg').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-bg')) closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Enter' && document.getElementById('modal-bg').classList.contains('show')) saveMatch();
+});
+</script>
+</body>
+</html>
